@@ -7,18 +7,10 @@
 
 import SwiftUI
 
+// Ce fichier n'est plus utilisé, la navigation est gérée dans DiscoverApp.swift
+// Conservé pour compatibilité si nécessaire
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        Text("Discover")
     }
-}
-
-#Preview {
-    ContentView()
 }

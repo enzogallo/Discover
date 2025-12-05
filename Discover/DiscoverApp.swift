@@ -6,12 +6,32 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct DiscoverApp: App {
+    @StateObject private var authService = AuthService()
+    @StateObject private var firebaseService = FirebaseService()
+    @StateObject private var spotifyService = SpotifyService()
+    
+    init() {
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authService.isAuthenticated {
+                MainTabView(
+                    authService: authService,
+                    firebaseService: firebaseService,
+                    spotifyService: spotifyService
+                )
+            } else {
+                AuthenticationView(
+                    authService: authService,
+                    firebaseService: firebaseService
+                )
+            }
         }
     }
 }
