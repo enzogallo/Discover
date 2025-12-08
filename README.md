@@ -54,27 +54,6 @@ Discover/
 └── DiscoverApp.swift             # Point d'entrée de l'application
 ```
 
-## Installation et Configuration
-
-Consultez le fichier [CONFIGURATION.md](CONFIGURATION.md) pour les instructions détaillées de configuration.
-
-### Étapes rapides :
-
-1. **Firebase**
-   - Créer un projet Firebase
-   - Activer Firestore
-   - Télécharger `GoogleService-Info.plist`
-   - Ajouter au projet Xcode
-
-2. **Spotify**
-   - Créer une application sur [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-   - Récupérer Client ID et Client Secret
-   - Configurer dans `SpotifyService.swift`
-
-3. **Xcode**
-   - Ajouter le package Firebase iOS SDK
-   - Configurer les URL Schemes pour Spotify
-
 ## Modèle de Données
 
 ### Post
@@ -102,12 +81,7 @@ Consultez le fichier [CONFIGURATION.md](CONFIGURATION.md) pour les instructions 
 - Firebase Firestore
 - Spotify Web API
 - Async/Await pour les opérations asynchrones
-
-## Notes Importantes
-
-⚠️ **Sécurité** : Les règles Firestore du MVP permettent l'accès libre. Pour la production, implémentez une authentification Firebase appropriée.
-
-⚠️ **Spotify** : L'API Spotify utilise le flux "Client Credentials" qui ne nécessite pas d'authentification utilisateur, parfait pour la recherche de musique.
+* : L'API Spotify utilise le flux "Client Credentials" qui ne nécessite pas d'authentification utilisateur, parfait pour la recherche de musique.
 
 ## Support
 
