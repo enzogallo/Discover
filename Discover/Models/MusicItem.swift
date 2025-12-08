@@ -26,3 +26,4 @@ struct MusicItem: Codable, Identifiable {
         self.spotifyID = spotifyID
     }
 }
+

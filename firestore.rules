@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Règles pour les posts
+    match /posts/{postId} {
+      // Lecture publique
+      allow read: if true;
+      // Écriture : n'importe qui peut créer un post
+      allow create: if true;
+      // Permettre la suppression pour la suppression de compte
+      allow delete: if true;
+      allow update: if false;
+    }
+    
+    // Règles pour les utilisateurs
+    match /users/{userId} {
+      // Lecture publique
+      allow read: if true;
+      // Écriture : n'importe qui peut créer/mettre à jour un utilisateur
+      allow create, update: if true;
+      // Permettre la suppression pour la suppression de compte
+      allow delete: if true;
+    }
+    
+    // Règles pour les likes
+    match /likes/{likeId} {
+      // Lecture publique
+      allow read: if true;
+      // Écriture : n'importe qui peut créer/supprimer un like
+      allow create, delete: if true;
+      allow update: if false;
+    }
+    
+    // Règles pour les commentaires
+    match /comments/{commentId} {
+      // Lecture publique
+      allow read: if true;
+      // Écriture : n'importe qui peut créer un commentaire
+      allow create: if true;
+      // Permettre la suppression pour la suppression de compte
+      allow delete: if true;
+      allow update: if false;
+    }
+    
+    // Règles pour les follows
+    match /follows/{followId} {
+      // Lecture publique
+      allow read: if true;
+      // Écriture : n'importe qui peut créer/supprimer un follow
+      allow create, delete: if true;
+      allow update: if false;
+    }
+    
+    // Par défaut, refuser l'accès à toutes les autres collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+

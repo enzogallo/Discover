@@ -27,7 +27,7 @@ struct ShareView: View {
                     HStack {
                         Image(systemName: "clock.fill")
                         Text(timeUntilNextPost)
-                            .font(.subheadline)
+                            .font(.plusJakartaSans(size: 15))
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -76,7 +76,7 @@ struct ShareView: View {
                                 searchResults = []
                             }) {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.gray.opacity(0.6))
                             }
                         }
                     }
@@ -86,7 +86,7 @@ struct ShareView: View {
                     
                     if !errorMessage.isEmpty {
                         Text(errorMessage)
-                            .font(.caption)
+                            .font(.plusJakartaSans(size: 12))
                             .foregroundColor(.red)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -103,9 +103,10 @@ struct ShareView: View {
                     VStack(spacing: 10) {
                         Image(systemName: "music.note")
                             .font(.system(size: 40))
-                            .foregroundColor(.secondary)
-                        Text("Aucun résultat")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.gray.opacity(0.5))
+                        Text("share.no.results".localized)
+                            .font(.plusJakartaSans(size: 15))
+                            .foregroundColor(.gray.opacity(0.7))
                     }
                     Spacer()
                 } else if searchResults.isEmpty {
@@ -113,9 +114,10 @@ struct ShareView: View {
                     VStack(spacing: 10) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 40))
-                            .foregroundColor(.secondary)
-                        Text("Recherchez un morceau ou un album")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.gray.opacity(0.5))
+                        Text("share.search.prompt".localized)
+                            .font(.plusJakartaSans(size: 15))
+                            .foregroundColor(.gray.opacity(0.7))
                     }
                     Spacer()
                 } else {
@@ -204,14 +206,14 @@ struct ShareView: View {
     private func updateTimeUntilNextPost() {
         // Cette fonction devrait calculer le temps restant
         // Pour simplifier, on affiche juste un message
-        timeUntilNextPost = "Vous avez déjà partagé aujourd'hui. Réessayez demain."
+        timeUntilNextPost = "share.already.shared.today".localized
     }
     
     private func shareMusic(_ item: MusicItem) async {
         guard let user = authService.currentUser else { return }
         guard canPost else {
             await MainActor.run {
-                errorMessage = "Vous avez déjà partagé un morceau dans les dernières 24 heures"
+                errorMessage = "share.error.already.shared".localized
             }
             return
         }
@@ -241,66 +243,5 @@ struct ShareView: View {
                 errorMessage = error.localizedDescription
             }
         }
-    }
-}
-
-struct MusicItemCard: View {
-    let item: MusicItem
-    let canPost: Bool
-    let onSelect: () -> Void
-    
-    var body: some View {
-        Button(action: onSelect) {
-            HStack(spacing: 12) {
-                AsyncImage(url: URL(string: item.coverArtURL)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .overlay(
-                            Image(systemName: "music.note")
-                                .foregroundColor(.gray)
-                        )
-                }
-                .frame(width: 60, height: 60)
-                .cornerRadius(8)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                    
-                    Text(item.artist)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                    
-                    Text(item.isAlbum ? "Album" : "Morceau")
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                }
-                
-                Spacer()
-                
-                if canPost {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(.blue)
-                        .font(.title2)
-                } else {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.gray)
-                        .font(.title2)
-                }
-            }
-            .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .disabled(!canPost)
     }
 }

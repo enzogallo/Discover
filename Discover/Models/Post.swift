@@ -84,3 +84,4 @@ struct Post: Codable, Identifiable {
         self.isAlbum = isAlbum
     }
 }
+

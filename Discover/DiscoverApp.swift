@@ -26,6 +26,10 @@ struct DiscoverApp: App {
                     firebaseService: firebaseService,
                     spotifyService: spotifyService
                 )
+                .task {
+                    // Charger la photo de profil depuis Firestore au démarrage
+                    await authService.loadUserFromFirestore(firebaseService: firebaseService)
+                }
             } else {
                 AuthenticationView(
                     authService: authService,

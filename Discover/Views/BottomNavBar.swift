@@ -1,0 +1,114 @@
+//
+//  BottomNavBar.swift
+//  Discover
+//
+//  Created by Enzo Gallo on 05/12/2025.
+//
+
+import SwiftUI
+
+struct BottomNavBar: View {
+    @Binding var selectedTab: Int
+    @Binding var showSharePopup: Bool
+    @ObservedObject var authService: AuthService
+    
+    var body: some View {
+        HStack {
+            Spacer()
+            
+            // Home icon
+            Button(action: {
+                selectedTab = 0
+            }) {
+                Image(selectedTab == 0 ? "home_filled" : "home_empty")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 24, height: 24)
+            }
+            
+            Spacer()
+            
+            // Add button (centered, larger)
+            Button(action: {
+                showSharePopup = true
+            }) {
+                Image(systemName: "plus")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 56, height: 56)
+                    .background(Color(hex: "222222"))
+                    .clipShape(Circle())
+            }
+            .offset(y: -8)
+            
+            Spacer()
+            
+            // Profile icon
+            Button(action: {
+                selectedTab = 1
+            }) {
+                Group {
+                    if let user = authService.currentUser,
+                       let profileURL = user.profilePictureURL,
+                       let url = URL(string: profileURL) {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Circle()
+                                .fill(Color.gray.opacity(0.3))
+                                .overlay(
+                                    Image(systemName: "person.fill")
+                                        .foregroundColor(.gray)
+                                        .font(.system(size: 16))
+                                )
+                        }
+                    } else {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .foregroundColor(.gray)
+                                    .font(.system(size: 16))
+                            )
+                    }
+                }
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(selectedTab == 1 ? Color(hex: "222222") : Color.clear, lineWidth: 2)
+                )
+            }
+            
+            Spacer()
+        }
+        .frame(height: 60)
+        .background(
+            Color.white
+                .cornerRadius(20, corners: [.topLeft, .topRight])
+        )
+        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: -5)
+    }
+}
+
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
+}

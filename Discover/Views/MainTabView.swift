@@ -11,30 +11,39 @@ struct MainTabView: View {
     @ObservedObject var authService: AuthService
     @ObservedObject var firebaseService: FirebaseService
     @ObservedObject var spotifyService: SpotifyService
+    @State private var selectedTab: Int = 0
+    @State private var showSharePopup = false
     
     var body: some View {
-        TabView {
-            FeedView(firebaseService: firebaseService, spotifyService: spotifyService)
-                .tabItem {
-                    Label("Découvrir", systemImage: "music.note.list")
-                }
+        ZStack {
+            // Contenu selon l'onglet sélectionné
+            if selectedTab == 0 {
+                FeedView(
+                    authService: authService,
+                    firebaseService: firebaseService,
+                    spotifyService: spotifyService
+                )
+            } else {
+                NewProfileView(
+                    authService: authService,
+                    firebaseService: firebaseService
+                )
+            }
             
-            ShareView(
+            // Navigation bar en bas
+            VStack {
+                Spacer()
+                BottomNavBar(selectedTab: $selectedTab, showSharePopup: $showSharePopup, authService: authService)
+            }
+        }
+        .sheet(isPresented: $showSharePopup) {
+            SharePopupView(
                 authService: authService,
                 firebaseService: firebaseService,
                 spotifyService: spotifyService
             )
-                .tabItem {
-                    Label("Partager", systemImage: "plus.circle")
-                }
-            
-            ProfileView(
-                authService: authService,
-                firebaseService: firebaseService
-            )
-                .tabItem {
-                    Label("Profil", systemImage: "person")
-                }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
         }
     }
 }

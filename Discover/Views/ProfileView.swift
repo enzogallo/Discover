@@ -26,8 +26,7 @@ struct ProfileView: View {
                         
                         if let user = authService.currentUser {
                             Text(user.pseudonym)
-                                .font(.title)
-                                .fontWeight(.bold)
+                                .font(.plusJakartaSansBold(size: 28))
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -46,9 +45,10 @@ struct ProfileView: View {
                         VStack(spacing: 20) {
                             Image(systemName: "music.note.list")
                                 .font(.system(size: 50))
-                                .foregroundColor(.secondary)
-                            Text("Aucun partage pour le moment")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.gray.opacity(0.5))
+                            Text("profile.no.posts".localized)
+                                .font(.plusJakartaSans(size: 15))
+                                .foregroundColor(.gray.opacity(0.7))
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 100)
@@ -62,10 +62,10 @@ struct ProfileView: View {
                     }
                 }
             }
-            .navigationTitle("Mon Profil")
+            .navigationTitle("profile.my.profile".localized)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Déconnexion") {
+                    Button("settings.logout".localized) {
                         authService.logout()
                     }
                     .foregroundColor(.red)
@@ -120,27 +120,27 @@ struct UserPostCard: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(post.musicTitle)
-                    .font(.headline)
+                    .font(.plusJakartaSansSemiBold(size: 17))
                     .foregroundColor(.primary)
                     .lineLimit(1)
                 
                 Text(post.artistName)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(.plusJakartaSans(size: 15))
+                    .foregroundColor(.gray.opacity(0.7))
                     .lineLimit(1)
                 
                 HStack(spacing: 4) {
-                    Text(post.isAlbum ? "Album" : "Morceau")
-                        .font(.caption)
+                    Text(post.isAlbum ? "common.album".localized : "common.track".localized)
+                        .font(.plusJakartaSans(size: 12))
                         .foregroundColor(.blue)
                     
-                    Text("•")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Text("common.bullet".localized)
+                        .font(.plusJakartaSans(size: 12))
+                        .foregroundColor(.gray.opacity(0.6))
                     
                     Text(formatDate(post.timestamp))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(.plusJakartaSans(size: 12))
+                        .foregroundColor(.gray.opacity(0.7))
                 }
             }
             

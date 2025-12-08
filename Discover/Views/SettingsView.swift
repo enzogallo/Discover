@@ -1,0 +1,132 @@
+//
+//  SettingsView.swift
+//  Discover
+//
+//  Created by Enzo Gallo on 05/12/2025.
+//
+
+import SwiftUI
+
+struct SettingsView: View {
+    @ObservedObject var authService: AuthService
+    @ObservedObject var firebaseService: FirebaseService
+    @Environment(\.dismiss) var dismiss
+    @State private var showDeleteConfirmation = false
+    @State private var isDeleting = false
+    
+    var body: some View {
+        ZStack {
+            // Fond blanc
+            Color.white
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header avec Discover et Paramètres
+                HStack {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Text("settings.discover".localized)
+                            .font(.plusJakartaSansSemiBold(size: 17))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 14)
+                            .background(Color(hex: "222222"))
+                            .cornerRadius(22)
+                    }
+                    .padding(.leading, 16)
+                    .padding(.top, 8)
+                    
+                    Spacer()
+                    
+                    Text("settings.title".localized)
+                        .font(.plusJakartaSansSemiBold(size: 17))
+                        .foregroundColor(Color(hex: "222222"))
+                        .padding(.trailing, 16)
+                        .padding(.top, 8)
+                }
+                
+                // Contenu
+                VStack(spacing: 0) {
+                    // Supprimer le compte
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            showDeleteConfirmation = true
+                        }) {
+                            Circle()
+                                .stroke(Color.black, lineWidth: 1)
+                                .frame(width: 40, height: 40)
+                                .overlay(
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.black)
+                                        .font(.system(size: 18, weight: .medium))
+                                )
+                        }
+                        
+                        Button(action: {
+                            showDeleteConfirmation = true
+                        }) {
+                            Text("settings.delete.account".localized)
+                                .font(.plusJakartaSans(size: 16))
+                                .foregroundColor(Color(hex: "222222"))
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 40)
+                    
+                    Spacer()
+                    
+                    // Déconnexion
+                    Button(action: {
+                        authService.logout()
+                        dismiss()
+                    }) {
+                        Text("settings.logout".localized)
+                            .font(.plusJakartaSansSemiBold(size: 16))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.red)
+                            .cornerRadius(40)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 32)
+                }
+            }
+        }
+        .alert("settings.delete.confirmation.title".localized, isPresented: $showDeleteConfirmation) {
+            Button("settings.delete.confirmation.cancel".localized, role: .cancel) {}
+            Button("settings.delete.confirmation.delete".localized, role: .destructive) {
+                Task {
+                    await deleteAccount()
+                }
+            }
+        } message: {
+            Text("settings.delete.confirmation.message".localized)
+        }
+    }
+    
+    private func deleteAccount() async {
+        guard let userId = authService.currentUser?.id else { return }
+        
+        await MainActor.run {
+            isDeleting = true
+        }
+        
+        do {
+            try await firebaseService.deleteUserData(userId: userId)
+            await MainActor.run {
+                authService.logout()
+                dismiss()
+            }
+        } catch {
+            await MainActor.run {
+                isDeleting = false
+                print("Erreur lors de la suppression: \(error.localizedDescription)")
+                // Afficher une alerte d'erreur à l'utilisateur
+            }
+        }
+    }
+}

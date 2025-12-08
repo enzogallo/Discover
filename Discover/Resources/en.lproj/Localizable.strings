@@ -1,0 +1,76 @@
+/* 
+  Localizable.strings (English)
+  Discover
+  
+  Created by Enzo Gallo on 06/12/2025.
+*/
+
+/* App Name */
+"app.name" = "Discover";
+
+/* Authentication */
+"auth.discover" = "Discover";
+"auth.share.music" = "Share your music";
+"auth.pseudonym" = "Pseudonym";
+"auth.pseudonym.placeholder" = "Between 3 and 15 characters";
+"auth.continue" = "Continue";
+"auth.welcome.to" = "Welcome To";
+"auth.login" = "Login";
+"auth.register" = "Register";
+"auth.pseudo" = "Pseudo";
+"auth.password" = "Password";
+"auth.profile.pic" = "Profile Pic";
+"auth.login.button" = "Login";
+"auth.register.button" = "Register";
+"auth.error.user.not.found" = "User not found";
+"auth.error.pseudonym.taken" = "This pseudonym is already taken";
+
+/* Feed */
+"feed.discover" = "Discover";
+"feed.no.posts" = "No shares yet";
+"feed.add.comment" = "Add a comment...";
+"feed.post" = "Post";
+"feed.loading" = "Loading...";
+
+/* Share */
+"share.discover" = "Discover";
+"share.add" = "Add";
+"share.search.placeholder" = "Search Artist, Album, Song ...";
+"share.no.results" = "No results";
+"share.search.prompt" = "Search for a track or album";
+"share.time.until.next" = "You can share again in %@";
+"share.already.shared.today" = "You have already shared today. Try again tomorrow.";
+"share.error.already.shared" = "You have already shared a track in the last 24 hours";
+
+/* Profile */
+"profile.discover" = "Discover";
+"profile.settings" = "Settings";
+"profile.followers" = "Followers";
+"profile.following" = "Following";
+"profile.no.posts" = "No shares yet";
+"profile.follow" = "Follow";
+"profile.unfollow" = "Unfollow";
+"profile.my.profile" = "My Profile";
+"comments.title" = "Comments";
+"comments.no.comments" = "No comments yet";
+
+/* Settings */
+"settings.discover" = "Discover";
+"settings.title" = "Settings";
+"settings.delete.account" = "Delete your account";
+"settings.logout" = "Logout";
+"settings.delete.confirmation.title" = "Delete your account";
+"settings.delete.confirmation.message" = "Are you sure you want to delete your account? This action is irreversible and will delete all your data.";
+"settings.delete.confirmation.cancel" = "Cancel";
+"settings.delete.confirmation.delete" = "Delete";
+
+/* Common */
+"common.hour.ago" = "%d hour ago";
+"common.hours.ago" = "%d hours ago";
+"common.minute.ago" = "%d minute ago";
+"common.minutes.ago" = "%d minutes ago";
+"common.bullet" = "•";
+"common.album" = "Album";
+"common.track" = "Track";
+
+

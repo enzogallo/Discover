@@ -113,4 +113,235 @@ class FirebaseService: ObservableObject {
         let snapshot = try await query.getDocuments()
         return snapshot.documents.first?.documentID
     }
+    
+    // Récupérer un utilisateur par son pseudonyme
+    func getUserByPseudonym(pseudonym: String) async throws -> User? {
+        let query = db.collection(usersCollection)
+            .whereField("pseudonym", isEqualTo: pseudonym)
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        guard let doc = snapshot.documents.first else { return nil }
+        
+        let data = doc.data()
+        let userId = doc.documentID
+        let pseudonym = data["pseudonym"] as? String ?? ""
+        let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
+        let profilePictureURL = data["profilePictureURL"] as? String
+        
+        return User(id: userId, pseudonym: pseudonym, createdAt: createdAt, profilePictureURL: profilePictureURL)
+    }
+    
+    // Récupérer un utilisateur par son ID
+    func getUserById(userId: String) async throws -> User? {
+        let doc = try await db.collection(usersCollection).document(userId).getDocument()
+        
+        guard doc.exists, let data = doc.data() else { return nil }
+        
+        let pseudonym = data["pseudonym"] as? String ?? ""
+        let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
+        let profilePictureURL = data["profilePictureURL"] as? String
+        
+        return User(id: userId, pseudonym: pseudonym, createdAt: createdAt, profilePictureURL: profilePictureURL)
+    }
+    
+    // Créer un utilisateur
+    func createUser(_ user: User) async throws {
+        var userDict: [String: Any] = [
+            "pseudonym": user.pseudonym,
+            "createdAt": Timestamp(date: user.createdAt)
+        ]
+        
+        if let profilePictureURL = user.profilePictureURL {
+            userDict["profilePictureURL"] = profilePictureURL
+        }
+        
+        try await db.collection(usersCollection).document(user.id).setData(userDict)
+    }
+    
+    // MARK: - Likes
+    private let likesCollection = "likes"
+    
+    func toggleLike(postId: String, userId: String) async throws -> Bool {
+        let query = db.collection(likesCollection)
+            .whereField("postId", isEqualTo: postId)
+            .whereField("userId", isEqualTo: userId)
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        
+        if let existingLike = snapshot.documents.first {
+            try await db.collection(likesCollection).document(existingLike.documentID).delete()
+            return false
+        } else {
+            let like = Like(userId: userId, postId: postId)
+            try await db.collection(likesCollection).document(like.id).setData(like.toDictionary())
+            return true
+        }
+    }
+    
+    func getLikeCount(postId: String) async throws -> Int {
+        let query = db.collection(likesCollection)
+            .whereField("postId", isEqualTo: postId)
+        
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.count
+    }
+    
+    func isLiked(postId: String, userId: String) async throws -> Bool {
+        let query = db.collection(likesCollection)
+            .whereField("postId", isEqualTo: postId)
+            .whereField("userId", isEqualTo: userId)
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        return !snapshot.documents.isEmpty
+    }
+    
+    // MARK: - Comments
+    private let commentsCollection = "comments"
+    
+    func addComment(_ comment: Comment) async throws {
+        try await db.collection(commentsCollection).document(comment.id).setData(comment.toDictionary())
+    }
+    
+    func fetchComments(postId: String) async throws -> [Comment] {
+        let query = db.collection(commentsCollection)
+            .whereField("postId", isEqualTo: postId)
+            .order(by: "timestamp", descending: false)
+        
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.compactMap { doc in
+            Comment(from: doc.data())
+        }
+    }
+    
+    func getCommentCount(postId: String) async throws -> Int {
+        let query = db.collection(commentsCollection)
+            .whereField("postId", isEqualTo: postId)
+        
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.count
+    }
+    
+    // MARK: - Follows
+    private let followsCollection = "follows"
+    
+    func followUser(followerId: String, followingId: String) async throws {
+        let query = db.collection(followsCollection)
+            .whereField("followerId", isEqualTo: followerId)
+            .whereField("followingId", isEqualTo: followingId)
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        
+        if snapshot.documents.isEmpty {
+            let follow = Follow(followerId: followerId, followingId: followingId)
+            try await db.collection(followsCollection).document(follow.id).setData(follow.toDictionary())
+        }
+    }
+    
+    func unfollowUser(followerId: String, followingId: String) async throws {
+        let query = db.collection(followsCollection)
+            .whereField("followerId", isEqualTo: followerId)
+            .whereField("followingId", isEqualTo: followingId)
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        
+        if let followDoc = snapshot.documents.first {
+            try await db.collection(followsCollection).document(followDoc.documentID).delete()
+        }
+    }
+    
+    func isFollowing(followerId: String, followingId: String) async throws -> Bool {
+        let query = db.collection(followsCollection)
+            .whereField("followerId", isEqualTo: followerId)
+            .whereField("followingId", isEqualTo: followingId)
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        return !snapshot.documents.isEmpty
+    }
+    
+    func getFollowerCount(userId: String) async throws -> Int {
+        let query = db.collection(followsCollection)
+            .whereField("followingId", isEqualTo: userId)
+        
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.count
+    }
+    
+    func getFollowingCount(userId: String) async throws -> Int {
+        let query = db.collection(followsCollection)
+            .whereField("followerId", isEqualTo: userId)
+        
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.count
+    }
+    
+    // MARK: - Delete User Data
+    func deleteUserData(userId: String) async throws {
+        // Supprimer tous les posts de l'utilisateur
+        let postsQuery = db.collection(postsCollection)
+            .whereField("userId", isEqualTo: userId)
+        
+        let postsSnapshot = try await postsQuery.getDocuments()
+        for postDoc in postsSnapshot.documents {
+            let postId = postDoc.documentID
+            
+            // Supprimer les likes associés
+            let likesQuery = db.collection(likesCollection)
+                .whereField("postId", isEqualTo: postId)
+            let likesSnapshot = try await likesQuery.getDocuments()
+            for likeDoc in likesSnapshot.documents {
+                try await db.collection(likesCollection).document(likeDoc.documentID).delete()
+            }
+            
+            // Supprimer les commentaires associés
+            let commentsQuery = db.collection(commentsCollection)
+                .whereField("postId", isEqualTo: postId)
+            let commentsSnapshot = try await commentsQuery.getDocuments()
+            for commentDoc in commentsSnapshot.documents {
+                try await db.collection(commentsCollection).document(commentDoc.documentID).delete()
+            }
+            
+            // Supprimer le post
+            try await db.collection(postsCollection).document(postId).delete()
+        }
+        
+        // Supprimer les follows
+        let followsQuery = db.collection(followsCollection)
+            .whereField("followerId", isEqualTo: userId)
+        let followsSnapshot = try await followsQuery.getDocuments()
+        for followDoc in followsSnapshot.documents {
+            try await db.collection(followsCollection).document(followDoc.documentID).delete()
+        }
+        
+        let followingQuery = db.collection(followsCollection)
+            .whereField("followingId", isEqualTo: userId)
+        let followingSnapshot = try await followingQuery.getDocuments()
+        for followDoc in followingSnapshot.documents {
+            try await db.collection(followsCollection).document(followDoc.documentID).delete()
+        }
+        
+        // Supprimer les likes de l'utilisateur
+        let userLikesQuery = db.collection(likesCollection)
+            .whereField("userId", isEqualTo: userId)
+        let userLikesSnapshot = try await userLikesQuery.getDocuments()
+        for likeDoc in userLikesSnapshot.documents {
+            try await db.collection(likesCollection).document(likeDoc.documentID).delete()
+        }
+        
+        // Supprimer les commentaires de l'utilisateur
+        let userCommentsQuery = db.collection(commentsCollection)
+            .whereField("userId", isEqualTo: userId)
+        let userCommentsSnapshot = try await userCommentsQuery.getDocuments()
+        for commentDoc in userCommentsSnapshot.documents {
+            try await db.collection(commentsCollection).document(commentDoc.documentID).delete()
+        }
+        
+        // Supprimer l'utilisateur
+        try await db.collection(usersCollection).document(userId).delete()
+    }
 }

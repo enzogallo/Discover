@@ -24,12 +24,29 @@ class AuthService: ObservableObject {
     func loadUser() {
         if let userId = userDefaults.string(forKey: userIdKey),
            let pseudonym = userDefaults.string(forKey: pseudonymKey) {
+            // Charger l'utilisateur de base (sans photo de profil pour l'instant)
+            // La photo sera chargée depuis Firestore si nécessaire
             self.currentUser = User(id: userId, pseudonym: pseudonym)
             self.isAuthenticated = true
         }
     }
     
-    func login(pseudonym: String, userId: String? = nil) {
+    // Charger l'utilisateur complet depuis Firestore (avec photo de profil)
+    func loadUserFromFirestore(firebaseService: FirebaseService) async {
+        guard let userId = userDefaults.string(forKey: userIdKey) else { return }
+        
+        do {
+            if let user = try await firebaseService.getUserById(userId: userId) {
+                await MainActor.run {
+                    self.currentUser = user
+                }
+            }
+        } catch {
+            print("Erreur lors du chargement de l'utilisateur depuis Firestore: \(error)")
+        }
+    }
+    
+    func login(pseudonym: String, userId: String? = nil, profilePictureURL: String? = nil) {
         let finalUserId: String
         if let providedUserId = userId {
             // Utiliser l'userId fourni (récupération de compte)
@@ -46,7 +63,7 @@ class AuthService: ObservableObject {
         
         userDefaults.set(pseudonym, forKey: pseudonymKey)
         
-        self.currentUser = User(id: finalUserId, pseudonym: pseudonym)
+        self.currentUser = User(id: finalUserId, pseudonym: pseudonym, profilePictureURL: profilePictureURL)
         self.isAuthenticated = true
     }
     

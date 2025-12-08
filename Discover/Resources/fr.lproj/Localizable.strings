@@ -1,0 +1,76 @@
+/* 
+  Localizable.strings (Français)
+  Discover
+  
+  Created by Enzo Gallo on 06/12/2025.
+*/
+
+/* App Name */
+"app.name" = "Discover";
+
+/* Authentication */
+"auth.discover" = "Discover";
+"auth.share.music" = "Partagez votre musique";
+"auth.pseudonym" = "Pseudonyme";
+"auth.pseudonym.placeholder" = "Entre 3 et 15 caractères";
+"auth.continue" = "Continuer";
+"auth.welcome.to" = "Welcome To";
+"auth.login" = "Login";
+"auth.register" = "Register";
+"auth.pseudo" = "Pseudo";
+"auth.password" = "Password";
+"auth.profile.pic" = "Profile Pic";
+"auth.login.button" = "Login";
+"auth.register.button" = "Register";
+"auth.error.user.not.found" = "Utilisateur non trouvé";
+"auth.error.pseudonym.taken" = "Ce pseudonyme est déjà pris";
+
+/* Feed */
+"feed.discover" = "Discover";
+"feed.no.posts" = "Aucun partage pour le moment";
+"feed.add.comment" = "Ajouter un commentaire...";
+"feed.post" = "Publier";
+"feed.loading" = "Chargement...";
+
+/* Share */
+"share.discover" = "Discover";
+"share.add" = "Ajouter";
+"share.search.placeholder" = "Rechercher un artiste, album ou morceau...";
+"share.no.results" = "Aucun résultat";
+"share.search.prompt" = "Recherchez un morceau ou un album";
+"share.time.until.next" = "Vous pourrez partager dans %@";
+"share.already.shared.today" = "Vous avez déjà partagé aujourd'hui. Réessayez demain.";
+"share.error.already.shared" = "Vous avez déjà partagé un morceau dans les dernières 24 heures";
+
+/* Profile */
+"profile.discover" = "Discover";
+"profile.settings" = "Paramètres";
+"profile.followers" = "Abonnés";
+"profile.following" = "Abonnements";
+"profile.no.posts" = "Aucun partage pour le moment";
+"profile.follow" = "Suivre";
+"profile.unfollow" = "Ne plus suivre";
+"profile.my.profile" = "Mon Profil";
+"comments.title" = "Commentaires";
+"comments.no.comments" = "Aucun commentaire pour le moment";
+
+/* Settings */
+"settings.discover" = "Discover";
+"settings.title" = "Paramètres";
+"settings.delete.account" = "Supprime ton compte";
+"settings.logout" = "Se déconnecter";
+"settings.delete.confirmation.title" = "Supprime ton compte";
+"settings.delete.confirmation.message" = "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et supprimera toutes vos données.";
+"settings.delete.confirmation.cancel" = "Annuler";
+"settings.delete.confirmation.delete" = "Supprimer";
+
+/* Common */
+"common.hour.ago" = "Il y a %d heure";
+"common.hours.ago" = "Il y a %d heures";
+"common.minute.ago" = "Il y a %d minute";
+"common.minutes.ago" = "Il y a %d minutes";
+"common.bullet" = "•";
+"common.album" = "Album";
+"common.track" = "Morceau";
+
+
