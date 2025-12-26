@@ -20,22 +20,25 @@ struct DiscoverApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if authService.isAuthenticated {
-                MainTabView(
-                    authService: authService,
-                    firebaseService: firebaseService,
-                    spotifyService: spotifyService
-                )
-                .task {
-                    // Charger la photo de profil depuis Firestore au démarrage
-                    await authService.loadUserFromFirestore(firebaseService: firebaseService)
+            Group {
+                if authService.isAuthenticated {
+                    MainTabView(
+                        authService: authService,
+                        firebaseService: firebaseService,
+                        spotifyService: spotifyService
+                    )
+                    .task {
+                        // Charger la photo de profil depuis Firestore au démarrage
+                        await authService.loadUserFromFirestore(firebaseService: firebaseService)
+                    }
+                } else {
+                    AuthenticationView(
+                        authService: authService,
+                        firebaseService: firebaseService
+                    )
                 }
-            } else {
-                AuthenticationView(
-                    authService: authService,
-                    firebaseService: firebaseService
-                )
             }
+            .preferredColorScheme(.light)
         }
     }
 }

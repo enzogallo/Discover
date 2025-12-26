@@ -16,8 +16,7 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-            // Fond blanc
-            Color.white
+            Color.themeBackground
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -31,7 +30,7 @@ struct SettingsView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 14)
-                            .background(Color(hex: "222222"))
+                            .background(Color.discoverBlack)
                             .cornerRadius(22)
                     }
                     .padding(.leading, 16)
@@ -41,7 +40,7 @@ struct SettingsView: View {
                     
                     Text("settings.title".localized)
                         .font(.plusJakartaSansSemiBold(size: 17))
-                        .foregroundColor(Color(hex: "222222"))
+                        .foregroundColor(.themePrimaryText)
                         .padding(.trailing, 16)
                         .padding(.top, 8)
                 }
@@ -58,7 +57,7 @@ struct SettingsView: View {
                                 .frame(width: 40, height: 40)
                                 .overlay(
                                     Image(systemName: "trash")
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.themePrimaryText)
                                         .font(.system(size: 18, weight: .medium))
                                 )
                         }
@@ -68,7 +67,7 @@ struct SettingsView: View {
                         }) {
                             Text("settings.delete.account".localized)
                                 .font(.plusJakartaSans(size: 16))
-                                .foregroundColor(Color(hex: "222222"))
+                                .foregroundColor(.themePrimaryText)
                         }
                         
                         Spacer()

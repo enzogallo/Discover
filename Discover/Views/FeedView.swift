@@ -22,7 +22,7 @@ struct FeedView: View {
     
     var body: some View {
         ZStack {
-            Color(red: 1, green: 1, blue: 1)
+            Color.themeBackground
                 .ignoresSafeArea()
             
             VStack(spacing: 4) {
@@ -34,7 +34,7 @@ struct FeedView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 14)
-                            .background(Color(hex: "222222"))
+                            .background(Color.discoverBlack)
                             .cornerRadius(22)
                     }
                     .padding(.leading, 16)

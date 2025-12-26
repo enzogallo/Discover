@@ -19,8 +19,7 @@ struct CommentsView: View {
     
     var body: some View {
         ZStack {
-            // Fond blanc
-            Color.white
+            Color.themeBackground
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -34,7 +33,7 @@ struct CommentsView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 14)
-                            .background(Color(hex: "222222"))
+                            .background(Color.discoverBlack)
                             .cornerRadius(22)
                     }
                     .padding(.leading, 16)
@@ -44,7 +43,7 @@ struct CommentsView: View {
                     
                     Text("comments.title".localized)
                         .font(.plusJakartaSansSemiBold(size: 17))
-                        .foregroundColor(Color(hex: "222222"))
+                        .foregroundColor(.themePrimaryText)
                         .padding(.trailing, 16)
                         .padding(.top, 8)
                 }
@@ -119,7 +118,7 @@ struct CommentsView: View {
                             .textFieldStyle(PlainTextFieldStyle())
                             .padding(.vertical, 10)
                             .padding(.horizontal, 12)
-                            .background(Color(white: 0.97))
+                            .background(Color.themeSurface)
                             .cornerRadius(20)
                             .onSubmit {
                                 postComment()
@@ -138,7 +137,7 @@ struct CommentsView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(Color.white)
+                    .background(Color.themeBackground)
                 }
             }
         }
@@ -211,7 +210,7 @@ struct CommentRow: View {
                 HStack(spacing: 8) {
                     Text(comment.userPseudonym)
                         .font(.plusJakartaSansSemiBold(size: 14))
-                        .foregroundColor(Color(hex: "222222"))
+                        .foregroundColor(.themePrimaryText)
                     
                     Text(formatTimeAgo(comment.timestamp))
                         .font(.plusJakartaSans(size: 12))
@@ -221,7 +220,7 @@ struct CommentRow: View {
                 // Texte du commentaire
                 Text(comment.text)
                     .font(.plusJakartaSans(size: 15))
-                    .foregroundColor(Color(hex: "222222"))
+                    .foregroundColor(.themePrimaryText)
                     .fixedSize(horizontal: false, vertical: true)
             }
             

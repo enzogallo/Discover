@@ -26,7 +26,7 @@ struct AuthenticationView: View {
     
     var body: some View {
         ZStack {
-            Color.white
+            Color.themeBackground
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -36,7 +36,7 @@ struct AuthenticationView: View {
                 VStack(spacing: 16) {
                     Text("auth.welcome.to".localized)
                         .font(.plusJakartaSans(size: 20))
-                        .foregroundColor(Color(hex: "222222"))
+                        .foregroundColor(.themePrimaryText)
                     
                     Button(action: {}) {
                         Text("auth.discover".localized)
@@ -44,7 +44,7 @@ struct AuthenticationView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 40)
                             .padding(.vertical, 12)
-                            .background(Color(hex: "222222"))
+                            .background(Color.discoverBlack)
                             .cornerRadius(25)
                     }
                 }
@@ -85,7 +85,7 @@ struct AuthenticationView: View {
             }) {
                 Text("auth.login".localized)
                     .font(.plusJakartaSans(size: 18))
-                    .foregroundColor(Color(hex: "222222"))
+                    .foregroundColor(.themePrimaryText)
                     .underline()
             }
             
@@ -94,7 +94,7 @@ struct AuthenticationView: View {
             }) {
                 Text("auth.register".localized)
                     .font(.plusJakartaSans(size: 18))
-                    .foregroundColor(Color(hex: "222222"))
+                    .foregroundColor(.themePrimaryText)
                     .underline()
             }
         }
@@ -107,7 +107,7 @@ struct AuthenticationView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("auth.pseudo".localized)
                     .font(.plusJakartaSans(size: 16))
-                    .foregroundColor(Color(hex: "222222"))
+                    .foregroundColor(.themePrimaryText)
                 
                 TextField("", text: $pseudonym)
                     .font(.plusJakartaSans(size: 16))
@@ -116,7 +116,7 @@ struct AuthenticationView: View {
                     .background(Color.white)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.black, lineWidth: 1)
+                            .stroke(Color.themePrimaryText.opacity(0.1), lineWidth: 1)
                     )
                     .cornerRadius(8)
             }
@@ -141,7 +141,7 @@ struct AuthenticationView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(isValidLogin ? Color(hex: "222222") : Color.gray)
+            .background(isValidLogin ? Color.themePrimaryText : Color.gray)
             .cornerRadius(25)
             .disabled(!isValidLogin || isLoading)
             .padding(.horizontal, 40)
@@ -156,7 +156,7 @@ struct AuthenticationView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("auth.pseudo".localized)
                     .font(.plusJakartaSans(size: 16))
-                    .foregroundColor(Color(hex: "222222"))
+                    .foregroundColor(.themePrimaryText)
                 
                 TextField("", text: $pseudonym)
                     .font(.plusJakartaSans(size: 16))
@@ -175,17 +175,17 @@ struct AuthenticationView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("auth.profile.pic".localized)
                     .font(.plusJakartaSans(size: 16))
-                    .foregroundColor(Color(hex: "222222"))
+                    .foregroundColor(.themePrimaryText)
                 
                 PhotosPicker(selection: $selectedPhoto, matching: .images) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white)
-                            .frame(width: 200, height: 200)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.black, lineWidth: 1)
-                            )
+                    .fill(Color.white)
+                    .frame(width: 200, height: 200)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.themePrimaryText.opacity(0.1), lineWidth: 1)
+                    )
                         
                         if let profileImage = profileImage {
                             Image(uiImage: profileImage)
@@ -195,12 +195,12 @@ struct AuthenticationView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                         } else {
                             Circle()
-                                .stroke(Color.black, lineWidth: 1)
+                                .stroke(Color.themePrimaryText.opacity(0.3), lineWidth: 1)
                                 .frame(width: 40, height: 40)
                                 .overlay(
                                     Image(systemName: "plus")
                                         .font(.system(size: 20, weight: .medium))
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.themePrimaryText)
                                 )
                         }
                     }
@@ -227,7 +227,7 @@ struct AuthenticationView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(isValidRegister ? Color(hex: "222222") : Color.gray)
+            .background(isValidRegister ? Color.themePrimaryText : Color.gray)
             .cornerRadius(25)
             .disabled(!isValidRegister || isLoading)
             .padding(.horizontal, 40)

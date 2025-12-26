@@ -18,8 +18,7 @@ struct NewProfileView: View {
     
     var body: some View {
         ZStack {
-            // Fond blanc
-            Color.white
+            Color.themeBackground
                 .ignoresSafeArea()
             
             ScrollView {
@@ -32,7 +31,7 @@ struct NewProfileView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 14)
-                                .background(Color(hex: "222222"))
+                                .background(Color.discoverBlack)
                                 .cornerRadius(22)
                         }
                         .padding(.leading, 16)
@@ -106,7 +105,7 @@ struct NewProfileView: View {
                         // Nom d'utilisateur
                         Text(user.pseudonym)
                             .font(.plusJakartaSansBold(size: 24))
-                            .foregroundColor(Color(hex: "222222"))
+                            .foregroundColor(.themePrimaryText)
                             .padding(.top, 12)
                         
                         // Followers / Following
@@ -114,19 +113,19 @@ struct NewProfileView: View {
                             VStack(spacing: 4) {
                                 Text("\(followerCount)")
                                     .font(.plusJakartaSansBold(size: 20))
-                                    .foregroundColor(Color(hex: "222222"))
+                                    .foregroundColor(.themePrimaryText)
                                 Text("profile.followers".localized)
                                     .font(.plusJakartaSans(size: 14))
-                                    .foregroundColor(Color(hex: "222222"))
+                                    .foregroundColor(.themePrimaryText)
                             }
                             
                             VStack(spacing: 4) {
                                 Text("\(followingCount)")
                                     .font(.plusJakartaSansBold(size: 20))
-                                    .foregroundColor(Color(hex: "222222"))
+                                    .foregroundColor(.themePrimaryText)
                                 Text("profile.following".localized)
                                     .font(.plusJakartaSans(size: 14))
-                                    .foregroundColor(Color(hex: "222222"))
+                                    .foregroundColor(.themePrimaryText)
                             }
                         }
                         .padding(.top, 20)

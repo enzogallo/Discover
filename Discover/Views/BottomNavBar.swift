@@ -36,7 +36,7 @@ struct BottomNavBar: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 56, height: 56)
-                    .background(Color(hex: "222222"))
+                    .background(Color.themePrimaryText)
                     .clipShape(Circle())
             }
             .offset(y: -8)
@@ -78,7 +78,7 @@ struct BottomNavBar: View {
                 .clipShape(Circle())
                 .overlay(
                     Circle()
-                        .stroke(selectedTab == 1 ? Color(hex: "222222") : Color.clear, lineWidth: 2)
+                        .stroke(selectedTab == 1 ? Color.themePrimaryText : Color.clear, lineWidth: 2)
                 )
             }
             

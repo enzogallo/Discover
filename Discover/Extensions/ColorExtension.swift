@@ -32,4 +32,11 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
+    
+    // Theme Colors
+    static let themeBackground = Color.white
+    static let themeSurface = Color(hex: "F7F7F7")
+    static let themePrimaryText = Color(hex: "121212")
+    static let themeSecondaryText = Color.gray.opacity(0.7)
+    static let discoverBlack = Color(hex: "222222")
 }
