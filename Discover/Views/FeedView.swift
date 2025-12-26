@@ -190,6 +190,17 @@ struct NewPostCard: View {
     @State private var showComments = false
     @State private var userProfilePictureURL: String? = nil
     
+    @StateObject private var audioPreviewService = AudioPreviewService.shared
+    
+    @State private var fetchedPreviewURL: String? = nil
+    @State private var isFetchingPreview = false
+    
+    // Computed property pour savoir si CE post joue
+    private var isPlayingThisPost: Bool {
+        return audioPreviewService.isPlaying && 
+               (audioPreviewService.currentPreviewURL == fetchedPreviewURL)
+    }
+    
     var body: some View {
         VStack(spacing: 4) {
             // Carte du post avec album art comme fond
@@ -218,6 +229,34 @@ struct NewPostCard: View {
                         .clipped()
                     }
                     .buttonStyle(PlainButtonStyle())
+                    
+                    // Overlay Speaker Icon (Instagram style)
+                    // Placé en bas à gauche de l'image (dans le ZStack)
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Button(action: toggleAudio) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.black.opacity(0.6))
+                                        .frame(width: 36, height: 36)
+                                    
+                                    if isFetchingPreview {
+                                        ProgressView()
+                                            .tint(.white)
+                                            .scaleEffect(0.8)
+                                    } else {
+                                        Image(systemName: isPlayingThisPost ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .padding(.leading, 16)
+                            .padding(.bottom, 16)
+                            Spacer()
+                        }
+                    }
                 
                 // Dégradé sombre en haut pour la lisibilité du texte
                 VStack(spacing: 0) {
@@ -404,44 +443,64 @@ struct NewPostCard: View {
         }
     }
     
+    private func toggleAudio() {
+        // Impact feedback immédiat
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+        // 1. Si ça joue déjà CE post -> Stop
+        if isPlayingThisPost {
+            audioPreviewService.stopPreview()
+            return
+        }
+        
+        // 2. Si ça joue un autre post -> Le service le coupera automatiquement au prochain play, 
+        // ou on peut forcer le stop si on veut être sûr.
+        // audioPreviewService.playPreview coupe le précédent.
+        
+        // 3. Avons-nous déjà l'URL ?
+        if let cached = fetchedPreviewURL {
+            audioPreviewService.playPreview(url: cached)
+            return
+        }
+        
+        // 4. Sinon, on va chercher
+        isFetchingPreview = true
+        Task {
+            let foundURL = await DeezerService.shared.findPreview(artist: post.artistName, title: post.musicTitle)
+            
+            await MainActor.run {
+                isFetchingPreview = false
+                if let url = foundURL {
+                    fetchedPreviewURL = url
+                    // On lance seulement si l'utilisateur n'a pas annulé entre temps ? 
+                    // Pour un simple toggle, on part du principe qu'il veut écouter.
+                    audioPreviewService.playPreview(url: url)
+                } else {
+                    UINotificationFeedbackGenerator().notificationOccurred(.error)
+                }
+            }
+        }
+    }
+    
     private func loadUserProfilePicture() async {
         // Pour l'instant, on garde nil car on n'a pas encore de système d'upload
         // Plus tard, on chargera depuis Firebase
         userProfilePictureURL = nil
     }
     
+    // Helper pour formater le temps
     private func formatTimeAgo(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         formatter.locale = Locale.current
-        
-        let components = Calendar.current.dateComponents([.hour, .minute], from: date, to: Date())
-        
-        if let hours = components.hour, hours > 0 {
-            if hours == 1 {
-                return "common.hour.ago".localized(with: hours)
-            } else {
-                return "common.hours.ago".localized(with: hours)
-            }
-        } else if let minutes = components.minute, minutes > 0 {
-            if minutes == 1 {
-                return "common.minute.ago".localized(with: minutes)
-            } else {
-                return "common.minutes.ago".localized(with: minutes)
-            }
-        } else {
-            return formatter.localizedString(for: date, relativeTo: Date())
-        }
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
     
+    // Helper pour formater les compteurs
     private func formatCount(_ count: Int) -> String {
         if count >= 1000 {
             let k = Double(count) / 1000.0
-            if k >= 10 {
-                return String(format: "%.1fk", k)
-            } else {
-                return String(format: "%.1fk", k)
-            }
+            return String(format: "%.1fk", k)
         }
         return "\(count)"
     }
