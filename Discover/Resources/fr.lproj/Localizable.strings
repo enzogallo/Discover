@@ -89,3 +89,9 @@
 "common.error.prefix" = "Erreur : %@";
 
 
+/* Streaks */
+"streak.days" = "%d jour de streak";
+"streak.days.plural" = "%d jours de streak";
+"streak.today.shared" = "Partage quotidien validé ! 🔥";
+"streak.keep.going" = "Partage ta musique pour garder ta streak ! ⚡️";
+"streak.longest" = "Record de streak : %d 🔥";

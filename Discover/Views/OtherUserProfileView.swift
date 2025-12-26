@@ -16,7 +16,9 @@ struct OtherUserProfileView: View {
     @State private var followerCount: Int = 0
     @State private var followingCount: Int = 0
     @State private var isFollowing: Bool = false
+    @State private var user: User? = nil
     @State private var isLoading: Bool = false
+
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -72,6 +74,13 @@ struct OtherUserProfileView: View {
                         .font(.plusJakartaSansBold(size: 24))
                         .foregroundColor(.themePrimaryText)
                         .padding(.top, 12)
+                    
+                    if let user = user, user.activeStreak > 0 {
+                        StreakView(streakCount: user.activeStreak)
+                            .padding(.top, 8)
+                    }
+
+
                     
                     // Bouton Follow/Unfollow
                     Button(action: {
@@ -179,16 +188,19 @@ struct OtherUserProfileView: View {
             return
         }
         
+        async let userResult = firebaseService.getUserById(userId: userId)
         async let posts = firebaseService.fetchUserPosts(userId: userId)
         async let followers = firebaseService.getFollowerCount(userId: userId)
         async let following = firebaseService.getFollowingCount(userId: userId)
         async let followingState = firebaseService.isFollowing(followerId: currentUserId, followingId: userId)
         
         do {
-            let (userPostsResult, followersResult, followingResult, isFollowingResult) = try await (posts, followers, following, followingState)
+            let (userObj, userPostsResult, followersResult, followingResult, isFollowingResult) = try await (userResult, posts, followers, following, followingState)
             
             await MainActor.run {
+                self.user = userObj
                 userPosts = userPostsResult
+
                 followerCount = followersResult
                 followingCount = followingResult
                 isFollowing = isFollowingResult

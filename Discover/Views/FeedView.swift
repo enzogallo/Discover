@@ -41,11 +41,18 @@ struct FeedView: View {
                     
                     Spacer()
                     
+                    if let user = authService.currentUser, user.activeStreak > 0 {
+                        StreakView(streakCount: user.activeStreak, showLabel: false)
+                            .padding(.trailing, 8)
+                    }
+
+                    
                     if hasPostedToday {
                         // Countdown for daily reset
                         CountdownView()
                             .padding(.trailing, 16)
                     }
+
                 }
                 .padding(.top, 8)
                 
@@ -147,10 +154,15 @@ struct FeedView: View {
             // Vérifier si l'utilisateur a posté aujourd'hui
             if let userId = authService.currentUser?.id {
                 let postedToday = try await firebaseService.hasUserPostedToday(userId: userId)
+                
+                // Rafraîchir l'utilisateur pour avoir sa streak à jour
+                await authService.loadUserFromFirestore(firebaseService: firebaseService)
+                
                 await MainActor.run {
                     self.hasPostedToday = postedToday
                 }
             }
+
         } catch {
             print("Erreur lors du chargement: \(error)")
         }

@@ -109,6 +109,13 @@ struct NewProfileView: View {
                             .foregroundColor(.themePrimaryText)
                             .padding(.top, 12)
                         
+                        if user.activeStreak > 0 {
+                            StreakView(streakCount: user.activeStreak)
+                                .padding(.top, 8)
+                        }
+
+
+                        
                         // Followers / Following
                         HStack(spacing: 60) {
                             VStack(spacing: 4) {

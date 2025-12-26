@@ -59,7 +59,45 @@ class FirebaseService: ObservableObject {
         
         // Créer le post
         try await db.collection(postsCollection).document(post.id).setData(post.toDictionary())
+        
+        // Mettre à jour la streak de l'utilisateur
+        try await updateUserStreak(userId: post.userId)
     }
+    
+    private func updateUserStreak(userId: String) async throws {
+        guard var user = try await getUserById(userId: userId) else { return }
+        
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        if let lastPostDate = user.lastPostDate {
+            let lastPostDay = calendar.startOfDay(for: lastPostDate)
+            let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+            
+            if lastPostDay == yesterday {
+                // Streak continue
+                user.currentStreak += 1
+            } else if lastPostDay < yesterday {
+                // Streak brisée
+                user.currentStreak = 1
+            } else if lastPostDay == today {
+                // Déjà posté aujourd'hui, la streak a déjà été incrémentée ou est à jour
+                // On ne fait rien pour ne pas incrémenter plusieurs fois par jour
+                return 
+            }
+        } else {
+            // Première fois qu'on poste
+            user.currentStreak = 1
+        }
+        
+        user.lastPostDate = Date()
+        if user.currentStreak > user.longestStreak {
+            user.longestStreak = user.currentStreak
+        }
+        
+        try await createUser(user)
+    }
+
     
     // Vérifier l'unicité du pseudonyme
     private func verifyPseudonymUniqueness(pseudonym: String, userId: String) async throws {
@@ -144,7 +182,20 @@ class FirebaseService: ObservableObject {
         let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
         let profilePictureURL = data["profilePictureURL"] as? String
         
-        return User(id: userId, pseudonym: pseudonym, createdAt: createdAt, profilePictureURL: profilePictureURL)
+        let currentStreak = data["currentStreak"] as? Int ?? 0
+        let lastPostDate = (data["lastPostDate"] as? Timestamp)?.dateValue()
+        let longestStreak = data["longestStreak"] as? Int ?? 0
+        
+        return User(
+            id: userId, 
+            pseudonym: pseudonym, 
+            createdAt: createdAt, 
+            profilePictureURL: profilePictureURL,
+            currentStreak: currentStreak,
+            lastPostDate: lastPostDate,
+            longestStreak: longestStreak
+        )
+
     }
     
     // Récupérer un utilisateur par son ID
@@ -157,19 +208,39 @@ class FirebaseService: ObservableObject {
         let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
         let profilePictureURL = data["profilePictureURL"] as? String
         
-        return User(id: userId, pseudonym: pseudonym, createdAt: createdAt, profilePictureURL: profilePictureURL)
+        let currentStreak = data["currentStreak"] as? Int ?? 0
+        let lastPostDate = (data["lastPostDate"] as? Timestamp)?.dateValue()
+        let longestStreak = data["longestStreak"] as? Int ?? 0
+        
+        return User(
+            id: userId, 
+            pseudonym: pseudonym, 
+            createdAt: createdAt, 
+            profilePictureURL: profilePictureURL,
+            currentStreak: currentStreak,
+            lastPostDate: lastPostDate,
+            longestStreak: longestStreak
+        )
+
     }
     
     // Créer un utilisateur
     func createUser(_ user: User) async throws {
         var userDict: [String: Any] = [
             "pseudonym": user.pseudonym,
-            "createdAt": Timestamp(date: user.createdAt)
+            "createdAt": Timestamp(date: user.createdAt),
+            "currentStreak": user.currentStreak,
+            "longestStreak": user.longestStreak
         ]
         
         if let profilePictureURL = user.profilePictureURL {
             userDict["profilePictureURL"] = profilePictureURL
         }
+        
+        if let lastPostDate = user.lastPostDate {
+            userDict["lastPostDate"] = Timestamp(date: lastPostDate)
+        }
+
         
         try await db.collection(usersCollection).document(user.id).setData(userDict)
     }
