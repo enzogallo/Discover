@@ -47,27 +47,44 @@ struct OtherUserProfileView: View {
                         Spacer()
                     }
                     
-                    // Photo de profil avec bordure orange-jaune
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 100, height: 100)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(
-                                    LinearGradient(
-                                        colors: [Color.orange, Color.yellow],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    ),
-                                    lineWidth: 3
-                                )
-                        )
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .foregroundColor(.gray)
-                                .font(.system(size: 50))
-                        )
-                        .padding(.top, 24)
+                    Group {
+                        if let user = user, let profileURL = user.profilePictureURL {
+                            if profileURL.hasPrefix("data:image"),
+                               let data = Data(base64Encoded: profileURL.replacingOccurrences(of: "data:image/jpeg;base64,", with: "").replacingOccurrences(of: "data:image/png;base64,", with: "")),
+                               let image = UIImage(data: data) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } else if let url = URL(string: profileURL) {
+                                AsyncImage(url: url) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(Color.gray.opacity(0.3))
+                                }
+                            } else {
+                                defaultProfileIcon
+                            }
+                        } else {
+                            defaultProfileIcon
+                        }
+                    }
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [Color.orange, Color.yellow],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ),
+                                lineWidth: 3
+                            )
+                    )
+                    .padding(.top, 24)
                     
                     // Nom d'utilisateur
                     Text(userPseudonym)
@@ -180,6 +197,16 @@ struct OtherUserProfileView: View {
         }
     }
     
+    private var defaultProfileIcon: some View {
+        RoundedRectangle(cornerRadius: 20)
+            .fill(Color.gray.opacity(0.3))
+            .overlay(
+                Image(systemName: "person.fill")
+                    .foregroundColor(.gray)
+                    .font(.system(size: 50))
+            )
+    }
+
     private func loadProfileData() async {
         isLoading = true
         

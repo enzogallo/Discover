@@ -64,28 +64,27 @@ struct NewProfileView: View {
                     if let user = authService.currentUser {
                         // Photo de profil carrée avec coins très arrondis
                         Group {
-                            if let profileURL = user.profilePictureURL, let url = URL(string: profileURL) {
-                                AsyncImage(url: url) { image in
-                                    image
+                            if let profileURL = user.profilePictureURL {
+                                if profileURL.hasPrefix("data:image"),
+                                   let data = Data(base64Encoded: profileURL.replacingOccurrences(of: "data:image/jpeg;base64,", with: "").replacingOccurrences(of: "data:image/png;base64,", with: "")),
+                                   let image = UIImage(data: data) {
+                                    Image(uiImage: image)
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
-                                } placeholder: {
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .fill(Color.gray.opacity(0.3))
-                                        .overlay(
-                                            Image(systemName: "person.fill")
-                                                .foregroundColor(.gray)
-                                                .font(.system(size: 50))
-                                        )
+                                } else if let url = URL(string: profileURL) {
+                                    AsyncImage(url: url) { image in
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    } placeholder: {
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(Color.gray.opacity(0.3))
+                                    }
+                                } else {
+                                    defaultProfileIcon
                                 }
                             } else {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.gray.opacity(0.3))
-                                    .overlay(
-                                        Image(systemName: "person.fill")
-                                            .foregroundColor(.gray)
-                                            .font(.system(size: 50))
-                                    )
+                                defaultProfileIcon
                             }
                         }
                         .frame(width: 100, height: 100)
@@ -191,6 +190,16 @@ struct NewProfileView: View {
         }
     }
     
+    private var defaultProfileIcon: some View {
+        RoundedRectangle(cornerRadius: 20)
+            .fill(Color.gray.opacity(0.3))
+            .overlay(
+                Image(systemName: "person.fill")
+                    .foregroundColor(.gray)
+                    .font(.system(size: 50))
+            )
+    }
+
     private func loadProfileData() async {
         guard let userId = authService.currentUser?.id else { return }
         

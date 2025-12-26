@@ -31,18 +31,9 @@ class FirebaseService: ObservableObject {
         return !snapshot.documents.isEmpty
     }
     
-    // Vérifier si l'utilisateur peut poster (limite 24h glissantes)
+    // Vérifier si l'utilisateur peut poster (limite une fois par jour calendaire)
     func canUserPost(userId: String) async throws -> Bool {
-        let twentyFourHoursAgo = Date().addingTimeInterval(-24 * 60 * 60)
-        let timestampValue = twentyFourHoursAgo.timeIntervalSince1970
-        
-        let query = db.collection(postsCollection)
-            .whereField("userId", isEqualTo: userId)
-            .whereField("timestamp", isGreaterThan: timestampValue)
-            .limit(to: 1)
-        
-        let snapshot = try await query.getDocuments()
-        return snapshot.documents.isEmpty
+        return try await !hasUserPostedToday(userId: userId)
     }
     
     // Créer un post

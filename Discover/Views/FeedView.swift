@@ -12,6 +12,7 @@ struct FeedView: View {
     @ObservedObject var firebaseService: FirebaseService
     @ObservedObject var spotifyService: SpotifyService
     let onParticipate: () -> Void
+    let onProfileTap: () -> Void
     @State private var isLoading: Bool = false
     @State private var postLikeCounts: [String: Int] = [:]
     @State private var postCommentCounts: [String: Int] = [:]
@@ -106,7 +107,8 @@ struct FeedView: View {
                                         withAnimation {
                                             expandedPostId = expandedPostId == post.id ? nil : post.id
                                         }
-                                    }
+                                    },
+                                    onProfileTap: onProfileTap
                                 )
                             }
                             Spacer(minLength: 100)
@@ -223,6 +225,7 @@ struct NewPostCard: View {
     let onLike: () -> Void
     let onComment: (String) -> Void
     let onExpand: () -> Void
+    let onProfileTap: () -> Void
     @State private var showOtherUserProfile = false
     @State private var showComments = false
     @State private var userProfilePictureURL: String? = nil
@@ -277,29 +280,31 @@ struct NewPostCard: View {
                     
                     // Overlay Speaker Icon (Instagram style)
                     // Placé en bas à gauche de l'image (dans le ZStack)
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Button(action: toggleAudio) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.black.opacity(0.6))
-                                        .frame(width: 36, height: 36)
-                                    
-                                    if isFetchingPreview {
-                                        ProgressView()
-                                            .tint(.white)
-                                            .scaleEffect(0.8)
-                                    } else {
-                                        Image(systemName: isPlayingThisPost ? "speaker.wave.2.fill" : "speaker.slash.fill")
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .foregroundColor(.white)
+                    if !isBlurred {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Button(action: toggleAudio) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.black.opacity(0.6))
+                                            .frame(width: 36, height: 36)
+                                        
+                                        if isFetchingPreview {
+                                            ProgressView()
+                                                .tint(.white)
+                                                .scaleEffect(0.8)
+                                        } else {
+                                            Image(systemName: isPlayingThisPost ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                                                .font(.system(size: 16, weight: .semibold))
+                                                .foregroundColor(.white)
+                                        }
                                     }
                                 }
+                                .padding(.leading, 16)
+                                .padding(.bottom, 16)
+                                Spacer()
                             }
-                            .padding(.leading, 16)
-                            .padding(.bottom, 16)
-                            Spacer()
                         }
                     }
                 
@@ -331,33 +336,32 @@ struct NewPostCard: View {
                             Button(action: {
                                 if post.userId != currentUserId {
                                     showOtherUserProfile = true
+                                } else {
+                                    onProfileTap()
                                 }
                             }) {
                                 Group {
-                                    if let profileURL = userProfilePictureURL, let url = URL(string: profileURL) {
-                                        AsyncImage(url: url) { image in
-                                            image
+                                    if let profileURL = userProfilePictureURL {
+                                        if profileURL.hasPrefix("data:image"),
+                                           let data = Data(base64Encoded: profileURL.replacingOccurrences(of: "data:image/jpeg;base64,", with: "").replacingOccurrences(of: "data:image/png;base64,", with: "")),
+                                           let image = UIImage(data: data) {
+                                            Image(uiImage: image)
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fill)
-                                        } placeholder: {
-                                            Rectangle()
-                                                .fill(Color.gray.opacity(0.3))
-                                                .cornerRadius(25)
-                                                .overlay(
-                                                    Image(systemName: "person.fill")
-                                                        .foregroundColor(.gray)
-                                                        .font(.system(size: 25))
-                                                )
+                                        } else if let url = URL(string: profileURL) {
+                                            AsyncImage(url: url) { image in
+                                                image
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fill)
+                                            } placeholder: {
+                                                Circle()
+                                                    .fill(Color.gray.opacity(0.3))
+                                            }
+                                        } else {
+                                            defaultProfileIcon
                                         }
                                     } else {
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .cornerRadius(25)
-                                            .overlay(
-                                                Image(systemName: "person.fill")
-                                                    .foregroundColor(.gray)
-                                                    .font(.system(size: 25))
-                                            )
+                                        defaultProfileIcon
                                     }
                                 }
                                 .frame(width: 50, height: 50)
@@ -380,6 +384,8 @@ struct NewPostCard: View {
                                 Button(action: {
                                     if post.userId != currentUserId {
                                         showOtherUserProfile = true
+                                    } else {
+                                        onProfileTap()
                                     }
                                 }) {
                                     Text(post.userPseudonym)
@@ -597,6 +603,17 @@ struct NewPostCard: View {
     @State private var showAddedToQueueMessage = false
     @State private var errorMessage: String? = nil
 
+    private var defaultProfileIcon: some View {
+        Rectangle()
+            .fill(Color.gray.opacity(0.3))
+            .cornerRadius(25)
+            .overlay(
+                Image(systemName: "person.fill")
+                    .foregroundColor(.gray)
+                    .font(.system(size: 25))
+            )
+    }
+
     private func addToQueue() async {
         do {
             try await spotifyService.addToQueue(spotifyID: post.spotifyID, isAlbum: post.isAlbum)
@@ -637,6 +654,8 @@ struct NewPostCard: View {
     }
 
     private func toggleAudio() {
+        guard !isBlurred else { return }
+        
         // Impact feedback immédiat
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
@@ -672,9 +691,15 @@ struct NewPostCard: View {
     }
     
     private func loadUserProfilePicture() async {
-        // Pour l'instant, on garde nil car on n'a pas encore de système d'upload
-        // Plus tard, on chargera depuis Firebase
-        userProfilePictureURL = nil
+        do {
+            if let user = try await firebaseService.getUserById(userId: post.userId) {
+                await MainActor.run {
+                    self.userProfilePictureURL = user.profilePictureURL
+                }
+            }
+        } catch {
+            print("Erreur lors du chargement de la photo de profil: \(error)")
+        }
     }
     
     // Helper pour formater le temps

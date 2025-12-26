@@ -253,34 +253,6 @@ class SpotifyService: NSObject, ObservableObject {
         
         var results: [MusicItem] = []
         
-        if let albums = json["albums"] as? [String: Any],
-           let items = albums["items"] as? [[String: Any]] {
-            for item in items {
-                if let id = item["id"] as? String,
-                   let name = item["name"] as? String,
-                   let artists = item["artists"] as? [[String: Any]],
-                   let firstArtist = artists.first,
-                   let artistName = firstArtist["name"] as? String,
-                   let images = item["images"] as? [[String: Any]],
-                   let firstImage = images.first,
-                   let imageURL = firstImage["url"] as? String,
-                   let externalURLs = item["external_urls"] as? [String: Any],
-                   let spotifyURL = externalURLs["spotify"] as? String {
-                    
-                    let musicItem = MusicItem(
-                        id: id,
-                        title: name,
-                        artist: artistName,
-                        coverArtURL: imageURL,
-                        spotifyURL: spotifyURL,
-                        isAlbum: true,
-                        spotifyID: id
-                    )
-                    results.append(musicItem)
-                }
-            }
-        }
-        
         if let tracks = json["tracks"] as? [String: Any],
            let items = tracks["items"] as? [[String: Any]] {
             for item in items {
@@ -303,6 +275,34 @@ class SpotifyService: NSObject, ObservableObject {
                         coverArtURL: imageURL,
                         spotifyURL: spotifyURL,
                         isAlbum: false,
+                        spotifyID: id
+                    )
+                    results.append(musicItem)
+                }
+            }
+        }
+
+        if let albums = json["albums"] as? [String: Any],
+           let items = albums["items"] as? [[String: Any]] {
+            for item in items {
+                if let id = item["id"] as? String,
+                   let name = item["name"] as? String,
+                   let artists = item["artists"] as? [[String: Any]],
+                   let firstArtist = artists.first,
+                   let artistName = firstArtist["name"] as? String,
+                   let images = item["images"] as? [[String: Any]],
+                   let firstImage = images.first,
+                   let imageURL = firstImage["url"] as? String,
+                   let externalURLs = item["external_urls"] as? [String: Any],
+                   let spotifyURL = externalURLs["spotify"] as? String {
+                    
+                    let musicItem = MusicItem(
+                        id: id,
+                        title: name,
+                        artist: artistName,
+                        coverArtURL: imageURL,
+                        spotifyURL: spotifyURL,
+                        isAlbum: true,
                         spotifyID: id
                     )
                     results.append(musicItem)

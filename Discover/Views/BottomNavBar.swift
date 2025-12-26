@@ -49,13 +49,23 @@ struct BottomNavBar: View {
             }) {
                 Group {
                     if let user = authService.currentUser,
-                       let profileURL = user.profilePictureURL,
-                       let url = URL(string: profileURL) {
-                        AsyncImage(url: url) { image in
-                            image
+                       let profileURL = user.profilePictureURL {
+                        if profileURL.hasPrefix("data:image"),
+                           let data = Data(base64Encoded: profileURL.replacingOccurrences(of: "data:image/jpeg;base64,", with: "").replacingOccurrences(of: "data:image/png;base64,", with: "")),
+                           let image = UIImage(data: data) {
+                            Image(uiImage: image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                        } placeholder: {
+                        } else if let url = URL(string: profileURL) {
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } placeholder: {
+                                Circle()
+                                    .fill(Color.gray.opacity(0.3))
+                            }
+                        } else {
                             Circle()
                                 .fill(Color.gray.opacity(0.3))
                                 .overlay(

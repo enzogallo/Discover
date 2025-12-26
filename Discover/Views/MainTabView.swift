@@ -22,7 +22,8 @@ struct MainTabView: View {
                     authService: authService,
                     firebaseService: firebaseService,
                     spotifyService: spotifyService,
-                    onParticipate: { showSharePopup = true }
+                    onParticipate: { showSharePopup = true },
+                    onProfileTap: { selectedTab = 1 }
                 )
             } else {
                 NewProfileView(
