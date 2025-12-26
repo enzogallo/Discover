@@ -86,10 +86,24 @@ struct BottomNavBar: View {
         }
         .frame(height: 60)
         .background(
-            Color.white
-                .cornerRadius(20, corners: [.topLeft, .topRight])
+            ZStack {
+                RoundedCorner(radius: 30, corners: [.allCorners])
+                    .fill(.ultraThinMaterial)
+                    .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
+                
+                RoundedCorner(radius: 30, corners: [.allCorners])
+                    .stroke(
+                        LinearGradient(
+                            colors: [.white.opacity(0.5), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
         )
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: -5)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 20)
     }
 }
 

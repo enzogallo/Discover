@@ -36,10 +36,14 @@ struct FeedView: View {
                             .cornerRadius(22)
                     }
                     .padding(.leading, 16)
-                    .padding(.top, 8)
                     
                     Spacer()
+                    
+                    // Countdown for daily reset
+                    CountdownView()
+                        .padding(.trailing, 16)
                 }
+                .padding(.top, 8)
                 
                 // Feed content
                 if isLoading && firebaseService.posts.isEmpty {
