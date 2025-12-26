@@ -68,6 +68,16 @@
 "settings.delete.confirmation.cancel" = "Cancel";
 "settings.delete.confirmation.delete" = "Delete";
 
+/* Spotify */
+"spotify.connect" = "Connect your Spotify";
+"spotify.connected.as" = "Connected as %@";
+"spotify.disconnect" = "Disconnect Spotify";
+"spotify.add.to.queue" = "Add to Spotify";
+"spotify.added.to.queue" = "Added to your queue!";
+"spotify.error.no.device" = "No active Spotify device found";
+"spotify.error.premium.required" = "Spotify Premium is required for this feature";
+"spotify.error.user.not.registered" = "This Spotify account is not registered as a test user in the dashboard";
+
 /* Common */
 "common.hour.ago" = "%d hour ago";
 "common.hours.ago" = "%d hours ago";

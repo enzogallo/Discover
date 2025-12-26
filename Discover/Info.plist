@@ -8,9 +8,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>spotify</string>
+			<string>discover-app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>discover-app</string>
 				<string>spotify</string>
 			</array>
 		</dict>

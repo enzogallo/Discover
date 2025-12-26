@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var authService: AuthService
     @ObservedObject var firebaseService: FirebaseService
+    @ObservedObject var spotifyService: SpotifyService
     @Environment(\.dismiss) var dismiss
     @State private var showDeleteConfirmation = false
     @State private var isDeleting = false
@@ -47,6 +48,52 @@ struct SettingsView: View {
                 
                 // Contenu
                 VStack(spacing: 0) {
+                    // Spotify Connection
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(spacing: 16) {
+                            Circle()
+                                .fill(spotifyService.isUserAuthenticated ? Color.init(red: 29/255, green: 185/255, blue: 84/255) : Color.gray.opacity(0.2))
+                                .frame(width: 40, height: 40)
+                                .overlay(
+                                    Image(systemName: "music.note")
+                                        .foregroundColor(spotifyService.isUserAuthenticated ? .white : .themePrimaryText)
+                                        .font(.system(size: 18, weight: .medium))
+                                )
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                if spotifyService.isUserAuthenticated {
+                                    Text("spotify.connected.as".localized(with: spotifyService.spotifyUserName ?? "User"))
+                                        .font(.plusJakartaSansBold(size: 16))
+                                        .foregroundColor(.themePrimaryText)
+                                    
+                                    Button(action: {
+                                        spotifyService.logout()
+                                    }) {
+                                        Text("spotify.disconnect".localized)
+                                            .font(.plusJakartaSans(size: 14))
+                                            .foregroundColor(.red)
+                                    }
+                                } else {
+                                    Text("spotify.connect".localized)
+                                        .font(.plusJakartaSansBold(size: 16))
+                                        .foregroundColor(.themePrimaryText)
+                                    
+                                    Button(action: {
+                                        spotifyService.login()
+                                    }) {
+                                        Text("auth.login".localized)
+                                            .font(.plusJakartaSans(size: 14))
+                                            .foregroundColor(.blue)
+                                    }
+                                }
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 40)
+
                     // Supprimer le compte
                     HStack(spacing: 16) {
                         Button(action: {

@@ -86,12 +86,12 @@ struct FeedView: View {
                                         set: { commentTexts[post.id] = $0 }
                                     ),
                                     onLike: {
-                                        Task {
+                                        _Concurrency.Task {
                                             await toggleLike(postId: post.id)
                                         }
                                     },
                                     onComment: { text in
-                                        Task {
+                                        _Concurrency.Task {
                                             await addComment(postId: post.id, text: text)
                                         }
                                     },
@@ -117,7 +117,7 @@ struct FeedView: View {
             await loadPosts()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("RefreshFeed"))) { _ in
-            Task {
+            _Concurrency.Task {
                 await loadPosts()
             }
         }
@@ -442,6 +442,29 @@ struct NewPostCard: View {
                             )
                             .cornerRadius(25)
                         }
+
+                        // Bouton Spotify Queue
+                        if spotifyService.isUserAuthenticated {
+                            Button(action: {
+                                _Concurrency.Task {
+                                    await addToQueue()
+                                }
+                            }) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: "plus.circle")
+                                        .font(.system(size: 18, weight: .medium))
+                                        .foregroundColor(.white)
+                                    Text("spotify.add.to.queue".localized)
+                                        .font(.plusJakartaSansMedium(size: 10))
+                                        .foregroundColor(.white)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(width: 50)
+                                .padding(.vertical, 14)
+                                .background(Color.init(red: 29/255, green: 185/255, blue: 84/255).opacity(0.8))
+                                .cornerRadius(25)
+                            }
+                        }
                         
                         Spacer()
                             .frame(height: 40)
@@ -479,6 +502,56 @@ struct NewPostCard: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
+
+                // Message "Ajouté à la file d'attente"
+                if showAddedToQueueMessage {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.white)
+                                Text("spotify.added.to.queue".localized)
+                                    .font(.plusJakartaSansBold(size: 14))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.init(red: 29/255, green: 185/255, blue: 84/255))
+                            .cornerRadius(25)
+                            .shadow(radius: 10)
+                            Spacer()
+                        }
+                        .padding(.bottom, 100)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+
+                // Message d'erreur
+                if let error = errorMessage {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.white)
+                                Text(error)
+                                    .font(.plusJakartaSansBold(size: 14))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.red.opacity(0.9))
+                            .cornerRadius(25)
+                            .shadow(radius: 10)
+                            Spacer()
+                        }
+                        .padding(.bottom, 100)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
                 }
                 .frame(width: cardWidth, height: 500)
                 .clipped()
@@ -509,6 +582,48 @@ struct NewPostCard: View {
         }
     }
     
+    @State private var showAddedToQueueMessage = false
+    @State private var errorMessage: String? = nil
+
+    private func addToQueue() async {
+        do {
+            try await spotifyService.addToQueue(spotifyID: post.spotifyID, isAlbum: post.isAlbum)
+            
+            // Haptic feedback
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            
+            await MainActor.run {
+                withAnimation {
+                    showAddedToQueueMessage = true
+                    errorMessage = nil
+                }
+                
+                // Masquer le message après 2 secondes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    withAnimation {
+                        showAddedToQueueMessage = false
+                    }
+                }
+            }
+        } catch {
+            print("Erreur lors de l'ajout à la file d'attente: \(error)")
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            
+            await MainActor.run {
+                withAnimation {
+                    errorMessage = error.localizedDescription
+                }
+                
+                // Masquer l'erreur après 3 secondes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation {
+                        errorMessage = nil
+                    }
+                }
+            }
+        }
+    }
+
     private func toggleAudio() {
         // Impact feedback immédiat
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -519,9 +634,7 @@ struct NewPostCard: View {
             return
         }
         
-        // 2. Si ça joue un autre post -> Le service le coupera automatiquement au prochain play, 
-        // ou on peut forcer le stop si on veut être sûr.
-        // audioPreviewService.playPreview coupe le précédent.
+        // 2. Si ça joue un autre post -> Le service le coupera automatiquement au prochain play
         
         // 3. Avons-nous déjà l'URL ?
         if let cached = fetchedPreviewURL {
@@ -531,15 +644,13 @@ struct NewPostCard: View {
         
         // 4. Sinon, on va chercher
         isFetchingPreview = true
-        Task {
+        _Concurrency.Task {
             let foundURL = await DeezerService.shared.findPreview(artist: post.artistName, title: post.musicTitle)
             
             await MainActor.run {
                 isFetchingPreview = false
                 if let url = foundURL {
                     fetchedPreviewURL = url
-                    // On lance seulement si l'utilisateur n'a pas annulé entre temps ? 
-                    // Pour un simple toggle, on part du principe qu'il veut écouter.
                     audioPreviewService.playPreview(url: url)
                 } else {
                     UINotificationFeedbackGenerator().notificationOccurred(.error)

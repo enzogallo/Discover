@@ -27,7 +27,8 @@ struct MainTabView: View {
             } else {
                 NewProfileView(
                     authService: authService,
-                    firebaseService: firebaseService
+                    firebaseService: firebaseService,
+                    spotifyService: spotifyService
                 )
             }
             

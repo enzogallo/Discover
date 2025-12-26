@@ -154,7 +154,7 @@ struct OtherUserProfileView: View {
                                                 .foregroundColor(.gray)
                                         )
                                 }
-                                .frame(height: (UIScreen.main.bounds.width - 48) / 2)
+                                .aspectRatio(1, contentMode: .fill)
                                 .cornerRadius(12)
                                 .clipped()
                             }

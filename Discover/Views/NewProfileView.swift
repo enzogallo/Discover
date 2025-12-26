@@ -10,6 +10,7 @@ import SwiftUI
 struct NewProfileView: View {
     @ObservedObject var authService: AuthService
     @ObservedObject var firebaseService: FirebaseService
+    @ObservedObject var spotifyService: SpotifyService
     @State private var userPosts: [Post] = []
     @State private var followerCount: Int = 0
     @State private var followingCount: Int = 0
@@ -162,7 +163,7 @@ struct NewProfileView: View {
                                                     .foregroundColor(.gray)
                                             )
                                     }
-                                    .frame(height: (UIScreen.main.bounds.width - 48) / 2)
+                                    .aspectRatio(1, contentMode: .fill)
                                     .cornerRadius(12)
                                     .clipped()
                                 }
@@ -176,7 +177,7 @@ struct NewProfileView: View {
             }
         }
         .sheet(isPresented: $showSettings) {
-            SettingsView(authService: authService, firebaseService: firebaseService)
+            SettingsView(authService: authService, firebaseService: firebaseService, spotifyService: spotifyService)
         }
         .task {
             await loadProfileData()
