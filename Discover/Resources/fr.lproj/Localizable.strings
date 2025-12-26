@@ -24,6 +24,7 @@
 "auth.register.button" = "Register";
 "auth.error.user.not.found" = "Utilisateur non trouvé";
 "auth.error.pseudonym.taken" = "Ce pseudonyme est déjà pris";
+"auth.error.not.connected" = "Vous devez être connecté pour partager";
 
 /* Feed */
 "feed.discover" = "Discover";
@@ -31,6 +32,7 @@
 "feed.add.comment" = "Ajouter un commentaire...";
 "feed.post" = "Publier";
 "feed.loading" = "Chargement...";
+"feed.reveal.cta" = "Participe pour voir ce que les autres écoutent";
 
 /* Share */
 "share.discover" = "Discover";
@@ -41,6 +43,8 @@
 "share.time.until.next" = "Vous pourrez partager dans %@";
 "share.already.shared.today" = "Vous avez déjà partagé aujourd'hui. Réessayez demain.";
 "share.error.already.shared" = "Vous avez déjà partagé un morceau dans les dernières 24 heures";
+"share.searching" = "Recherche...";
+"share.title" = "Partager";
 
 /* Profile */
 "profile.discover" = "Discover";
@@ -72,5 +76,6 @@
 "common.bullet" = "•";
 "common.album" = "Album";
 "common.track" = "Morceau";
+"common.error.prefix" = "Erreur : %@";
 
 

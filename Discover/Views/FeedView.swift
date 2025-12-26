@@ -11,12 +11,14 @@ struct FeedView: View {
     @ObservedObject var authService: AuthService
     @ObservedObject var firebaseService: FirebaseService
     @ObservedObject var spotifyService: SpotifyService
+    let onParticipate: () -> Void
     @State private var isLoading: Bool = false
     @State private var postLikeCounts: [String: Int] = [:]
     @State private var postCommentCounts: [String: Int] = [:]
     @State private var postLikedStates: [String: Bool] = [:]
     @State private var expandedPostId: String? = nil
     @State private var commentTexts: [String: String] = [:]
+    @State private var hasPostedToday: Bool = false
     
     var body: some View {
         ZStack {
@@ -39,9 +41,11 @@ struct FeedView: View {
                     
                     Spacer()
                     
-                    // Countdown for daily reset
-                    CountdownView()
-                        .padding(.trailing, 16)
+                    if hasPostedToday {
+                        // Countdown for daily reset
+                        CountdownView()
+                            .padding(.trailing, 16)
+                    }
                 }
                 .padding(.top, 8)
                 
@@ -75,6 +79,8 @@ struct FeedView: View {
                                     commentCount: postCommentCounts[post.id] ?? 0,
                                     isLiked: postLikedStates[post.id] ?? false,
                                     isExpanded: expandedPostId == post.id,
+                                    isBlurred: !hasPostedToday && post.userId != (authService.currentUser?.id ?? ""),
+                                    onParticipate: onParticipate,
                                     commentText: Binding(
                                         get: { commentTexts[post.id] ?? "" },
                                         set: { commentTexts[post.id] = $0 }
@@ -110,6 +116,11 @@ struct FeedView: View {
         .refreshable {
             await loadPosts()
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("RefreshFeed"))) { _ in
+            Task {
+                await loadPosts()
+            }
+        }
     }
     
     private func loadPosts() async {
@@ -130,6 +141,14 @@ struct FeedView: View {
                     postLikeCounts[post.id] = count
                     postCommentCounts[post.id] = comments
                     postLikedStates[post.id] = liked
+                }
+            }
+            
+            // Vérifier si l'utilisateur a posté aujourd'hui
+            if let userId = authService.currentUser?.id {
+                let postedToday = try await firebaseService.hasUserPostedToday(userId: userId)
+                await MainActor.run {
+                    self.hasPostedToday = postedToday
                 }
             }
         } catch {
@@ -186,6 +205,8 @@ struct NewPostCard: View {
     let commentCount: Int
     let isLiked: Bool
     let isExpanded: Bool
+    let isBlurred: Bool
+    let onParticipate: () -> Void
     @Binding var commentText: String
     let onLike: () -> Void
     let onComment: (String) -> Void
@@ -231,6 +252,14 @@ struct NewPostCard: View {
                         }
                         .frame(width: cardWidth, height: 500)
                         .clipped()
+                        .blur(radius: isBlurred ? 40 : 0)
+                        .overlay(
+                            Group {
+                                if isBlurred {
+                                    Color.black.opacity(0.2)
+                                }
+                            }
+                        )
                     }
                     .buttonStyle(PlainButtonStyle())
                     
@@ -366,6 +395,8 @@ struct NewPostCard: View {
                     
                     Spacer()
                 }
+                .blur(radius: isBlurred ? 10 : 0)
+                .allowsHitTesting(!isBlurred)
                 
                 // Boutons likes et commentaires sur le côté droit
                 HStack {
@@ -416,6 +447,37 @@ struct NewPostCard: View {
                             .frame(height: 40)
                     }
                     .padding(.trailing, 16)
+                    .blur(radius: isBlurred ? 10 : 0)
+                    .allowsHitTesting(!isBlurred)
+                }
+                
+                // Overlay "Participe pour voir"
+                if isBlurred {
+                    Button(action: onParticipate) {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                VStack(spacing: 12) {
+                                    Image(systemName: "lock.fill")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.white)
+                                    
+                                    Text("feed.reveal.cta".localized)
+                                        .font(.plusJakartaSansBold(size: 16))
+                                        .foregroundColor(.white)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal, 20)
+                                }
+                                .padding(.vertical, 30)
+                                .background(Color.black.opacity(0.4))
+                                .cornerRadius(25)
+                                Spacer()
+                            }
+                            Spacer()
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
                 }
                 .frame(width: cardWidth, height: 500)

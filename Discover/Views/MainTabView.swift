@@ -21,7 +21,8 @@ struct MainTabView: View {
                 FeedView(
                     authService: authService,
                     firebaseService: firebaseService,
-                    spotifyService: spotifyService
+                    spotifyService: spotifyService,
+                    onParticipate: { showSharePopup = true }
                 )
             } else {
                 NewProfileView(
@@ -36,7 +37,12 @@ struct MainTabView: View {
                 BottomNavBar(selectedTab: $selectedTab, showSharePopup: $showSharePopup, authService: authService)
             }
         }
-        .sheet(isPresented: $showSharePopup) {
+        .sheet(isPresented: $showSharePopup, onDismiss: {
+            Task {
+                // Forcer un rechargement du feed pour mettre à jour l'état Reveal
+                NotificationCenter.default.post(name: NSNotification.Name("RefreshFeed"), object: nil)
+            }
+        }) {
             SharePopupView(
                 authService: authService,
                 firebaseService: firebaseService,

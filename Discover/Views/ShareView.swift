@@ -41,7 +41,7 @@ struct ShareView: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.secondary)
                         
-                        TextField("Rechercher un artiste, album ou morceau...", text: $searchQuery)
+                        TextField("share.search.placeholder".localized, text: $searchQuery)
                             .textFieldStyle(PlainTextFieldStyle())
                             .onChange(of: searchQuery) { newValue in
                                 // Annuler la recherche précédente
@@ -96,7 +96,7 @@ struct ShareView: View {
                 // Résultats
                 if isLoading {
                     Spacer()
-                    ProgressView("Recherche...")
+                    ProgressView("share.searching".localized)
                     Spacer()
                 } else if searchResults.isEmpty && !searchQuery.isEmpty {
                     Spacer()
@@ -139,7 +139,7 @@ struct ShareView: View {
                     }
                 }
             }
-            .navigationTitle("Partager")
+            .navigationTitle("share.title".localized)
             .task {
                 await checkCanPost()
             }
@@ -177,7 +177,7 @@ struct ShareView: View {
             await MainActor.run {
                 // Vérifier que la requête n'a pas changé pendant la recherche
                 if self.searchQuery.trimmingCharacters(in: .whitespaces) == query {
-                    errorMessage = "Erreur: \(error.localizedDescription)"
+                    errorMessage = "common.error.prefix".localized(with: error.localizedDescription)
                 }
                 isLoading = false
             }
@@ -240,7 +240,7 @@ struct ShareView: View {
             }
         } catch {
             await MainActor.run {
-                errorMessage = error.localizedDescription
+                errorMessage = "common.error.prefix".localized(with: error.localizedDescription)
             }
         }
     }

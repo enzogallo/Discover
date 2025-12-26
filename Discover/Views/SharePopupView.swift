@@ -196,7 +196,7 @@ struct SharePopupView: View {
         } catch {
             await MainActor.run {
                 if self.searchQuery.trimmingCharacters(in: .whitespaces) == query {
-                    errorMessage = "Erreur: \(error.localizedDescription)"
+                    errorMessage = "common.error.prefix".localized(with: error.localizedDescription)
                 }
                 isLoading = false
             }
@@ -224,7 +224,7 @@ struct SharePopupView: View {
         guard let user = authService.currentUser else {
             print("Erreur: Pas d'utilisateur connecté")
             await MainActor.run {
-                errorMessage = "Vous devez être connecté pour partager"
+                errorMessage = "auth.error.not.connected".localized
             }
             return
         }
@@ -263,7 +263,7 @@ struct SharePopupView: View {
         } catch {
             print("Erreur lors du partage: \(error)")
             await MainActor.run {
-                errorMessage = error.localizedDescription
+                errorMessage = "common.error.prefix".localized(with: error.localizedDescription)
             }
         }
     }

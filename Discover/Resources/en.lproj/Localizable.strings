@@ -24,6 +24,7 @@
 "auth.register.button" = "Register";
 "auth.error.user.not.found" = "User not found";
 "auth.error.pseudonym.taken" = "This pseudonym is already taken";
+"auth.error.not.connected" = "You must be logged in to share";
 
 /* Feed */
 "feed.discover" = "Discover";
@@ -31,6 +32,7 @@
 "feed.add.comment" = "Add a comment...";
 "feed.post" = "Post";
 "feed.loading" = "Loading...";
+"feed.reveal.cta" = "Participate to see what others are listening to";
 
 /* Share */
 "share.discover" = "Discover";
@@ -41,6 +43,8 @@
 "share.time.until.next" = "You can share again in %@";
 "share.already.shared.today" = "You have already shared today. Try again tomorrow.";
 "share.error.already.shared" = "You have already shared a track in the last 24 hours";
+"share.searching" = "Searching...";
+"share.title" = "Share";
 
 /* Profile */
 "profile.discover" = "Discover";
@@ -72,5 +76,6 @@
 "common.bullet" = "•";
 "common.album" = "Album";
 "common.track" = "Track";
+"common.error.prefix" = "Error: %@";
 
 

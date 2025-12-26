@@ -268,7 +268,7 @@ struct AuthenticationView: View {
                 }
             } catch {
                 await MainActor.run {
-                    errorMessage = "Erreur: \(error.localizedDescription)"
+                    errorMessage = "common.error.prefix".localized(with: error.localizedDescription)
                     isLoading = false
                 }
             }
@@ -317,7 +317,7 @@ struct AuthenticationView: View {
                 }
             } catch {
                 await MainActor.run {
-                    errorMessage = "Erreur: \(error.localizedDescription)"
+                    errorMessage = "common.error.prefix".localized(with: error.localizedDescription)
                     isLoading = false
                 }
             }

@@ -16,7 +16,22 @@ class FirebaseService: ObservableObject {
     
     @Published var posts: [Post] = []
     
-    // Vérifier si l'utilisateur peut poster (limite 24h)
+    // Vérifier si l'utilisateur a posté aujourd'hui (depuis minuit local)
+    func hasUserPostedToday(userId: String) async throws -> Bool {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let timestampValue = startOfDay.timeIntervalSince1970
+        
+        let query = db.collection(postsCollection)
+            .whereField("userId", isEqualTo: userId)
+            .whereField("timestamp", isGreaterThanOrEqualTo: timestampValue)
+            .limit(to: 1)
+        
+        let snapshot = try await query.getDocuments()
+        return !snapshot.documents.isEmpty
+    }
+    
+    // Vérifier si l'utilisateur peut poster (limite 24h glissantes)
     func canUserPost(userId: String) async throws -> Bool {
         let twentyFourHoursAgo = Date().addingTimeInterval(-24 * 60 * 60)
         let timestampValue = twentyFourHoursAgo.timeIntervalSince1970
@@ -36,7 +51,7 @@ class FirebaseService: ObservableObject {
         let canPost = try await canUserPost(userId: post.userId)
         
         guard canPost else {
-            throw NSError(domain: "FirebaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Vous avez déjà partagé un morceau dans les dernières 24 heures"])
+            throw NSError(domain: "FirebaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "share.error.already.shared".localized])
         }
         
         // Vérifier l'unicité du pseudonyme si nécessaire
@@ -57,7 +72,7 @@ class FirebaseService: ObservableObject {
         if let existingUser = snapshot.documents.first,
            existingUser.documentID != userId {
             // Si le pseudonyme existe mais appartient à un autre utilisateur
-            throw NSError(domain: "FirebaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Ce pseudonyme est déjà utilisé"])
+            throw NSError(domain: "FirebaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "auth.error.pseudonym.taken".localized])
         }
         
         // Enregistrer/mettre à jour l'utilisateur
