@@ -126,6 +126,7 @@ struct SettingsView: View {
                     
                     // Déconnexion
                     Button(action: {
+                        spotifyService.logout()
                         authService.logout()
                         dismiss()
                     }) {
@@ -164,6 +165,7 @@ struct SettingsView: View {
         do {
             try await firebaseService.deleteUserData(userId: userId)
             await MainActor.run {
+                spotifyService.logout()
                 authService.logout()
                 dismiss()
             }
