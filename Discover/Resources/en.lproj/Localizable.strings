@@ -67,6 +67,13 @@
 "settings.delete.confirmation.message" = "Are you sure you want to delete your account? This action is irreversible and will delete all your data.";
 "settings.delete.confirmation.cancel" = "Cancel";
 "settings.delete.confirmation.delete" = "Delete";
+"settings.edit.profile" = "Edit Profile";
+
+/* Edit Profile */
+"edit.profile.title" = "Edit Profile";
+"edit.profile.save" = "Save Changes";
+"edit.profile.success" = "Profile updated successfully!";
+"edit.profile.error" = "Failed to update profile";
 
 /* Spotify */
 "spotify.connect" = "Connect your Spotify";

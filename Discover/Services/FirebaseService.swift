@@ -157,6 +157,28 @@ class FirebaseService: ObservableObject {
         return snapshot.documents.isEmpty
     }
     
+    // Mettre à jour le profil utilisateur
+    func updateUserProfile(userId: String, newPseudonym: String, newProfilePictureURL: String?) async throws {
+        // Si le pseudo a changé, vérifier son unicité
+        let currentUser = try await getUserById(userId: userId)
+        if let currentPseudo = currentUser?.pseudonym, currentPseudo != newPseudonym {
+            let isAvailable = try await checkPseudonymAvailability(pseudonym: newPseudonym)
+            if !isAvailable {
+                throw NSError(domain: "FirebaseService", code: -1, userInfo: [NSLocalizedDescriptionKey: "auth.error.pseudonym.taken".localized])
+            }
+        }
+        
+        var updateData: [String: Any] = [
+            "pseudonym": newPseudonym
+        ]
+        
+        if let profilePictureURL = newProfilePictureURL {
+            updateData["profilePictureURL"] = profilePictureURL
+        }
+        
+        try await db.collection(usersCollection).document(userId).updateData(updateData)
+    }
+    
     // Récupérer l'userId associé à un pseudonyme (pour récupérer un compte)
     func getUserIdForPseudonym(pseudonym: String) async throws -> String? {
         let query = db.collection(usersCollection)

@@ -67,6 +67,13 @@
 "settings.delete.confirmation.message" = "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et supprimera toutes vos données.";
 "settings.delete.confirmation.cancel" = "Annuler";
 "settings.delete.confirmation.delete" = "Supprimer";
+"settings.edit.profile" = "Modifier mon profil";
+
+/* Edit Profile */
+"edit.profile.title" = "Modifier mon profil";
+"edit.profile.save" = "Enregistrer les modifications";
+"edit.profile.success" = "Profil mis à jour avec succès !";
+"edit.profile.error" = "Erreur lors de la mise à jour du profil";
 
 /* Spotify */
 "spotify.connect" = "Connecte ton Spotify";

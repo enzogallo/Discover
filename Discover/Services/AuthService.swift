@@ -67,6 +67,23 @@ class AuthService: ObservableObject {
         self.isAuthenticated = true
     }
     
+    func updateLocalUser(pseudonym: String, profilePictureURL: String?) {
+        userDefaults.set(pseudonym, forKey: pseudonymKey)
+        
+        if var updatedUser = currentUser {
+            updatedUser = User(
+                id: updatedUser.id,
+                pseudonym: pseudonym,
+                createdAt: updatedUser.createdAt,
+                profilePictureURL: profilePictureURL ?? updatedUser.profilePictureURL,
+                currentStreak: updatedUser.currentStreak,
+                lastPostDate: updatedUser.lastPostDate,
+                longestStreak: updatedUser.longestStreak
+            )
+            self.currentUser = updatedUser
+        }
+    }
+    
     func logout() {
         userDefaults.removeObject(forKey: userIdKey)
         userDefaults.removeObject(forKey: pseudonymKey)
