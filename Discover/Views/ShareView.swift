@@ -43,7 +43,7 @@ struct ShareView: View {
                         
                         TextField("share.search.placeholder".localized, text: $searchQuery)
                             .textFieldStyle(PlainTextFieldStyle())
-                            .onChange(of: searchQuery) { newValue in
+                            .onChange(of: searchQuery) { oldValue, newValue in
                                 // Annuler la recherche précédente
                                 searchTask?.cancel()
                                 

@@ -443,4 +443,35 @@ class FirebaseService: ObservableObject {
         // Supprimer l'utilisateur
         try await db.collection(usersCollection).document(userId).delete()
     }
+    
+    // Supprimer un post
+    func deletePost(postId: String, userId: String) async throws {
+        // Vérifier que le post appartient bien à l'utilisateur
+        let postDoc = try await db.collection(postsCollection).document(postId).getDocument()
+        guard let postData = postDoc.data(),
+              let postUserId = postData["userId"] as? String,
+              postUserId == userId else {
+            throw NSError(domain: "FirebaseService", code: 403, userInfo: [NSLocalizedDescriptionKey: "Unauthorized"])
+        }
+        
+        // Supprimer les likes du post
+        let likesQuery = db.collection(likesCollection).whereField("postId", isEqualTo: postId)
+        let likesSnapshot = try await likesQuery.getDocuments()
+        for likeDoc in likesSnapshot.documents {
+            try await db.collection(likesCollection).document(likeDoc.documentID).delete()
+        }
+        
+        // Supprimer les commentaires du post
+        let commentsQuery = db.collection(commentsCollection).whereField("postId", isEqualTo: postId)
+        let commentsSnapshot = try await commentsQuery.getDocuments()
+        for commentDoc in commentsSnapshot.documents {
+            try await db.collection(commentsCollection).document(commentDoc.documentID).delete()
+        }
+        
+        // Supprimer le post
+        try await db.collection(postsCollection).document(postId).delete()
+        
+        // Retirer le post de la liste locale
+        posts.removeAll { $0.id == postId }
+    }
 }

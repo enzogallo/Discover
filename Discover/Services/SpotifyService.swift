@@ -458,7 +458,11 @@ class SpotifyService: NSObject, ObservableObject {
 
 extension SpotifyService: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        return ASPresentationAnchor()
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            // Fallback pour iOS plus ancien
+            return ASPresentationAnchor()
+        }
+        return ASPresentationAnchor(windowScene: windowScene)
     }
 }
 

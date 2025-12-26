@@ -176,7 +176,7 @@ struct EditProfileView: View {
             }
         }
         .navigationBarHidden(true)
-        .onChange(of: selectedPhoto) { newItem in
+        .onChange(of: selectedPhoto) { oldValue, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {

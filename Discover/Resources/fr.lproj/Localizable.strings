@@ -102,3 +102,10 @@
 "streak.today.shared" = "Partage quotidien validé ! 🔥";
 "streak.keep.going" = "Partage ta musique pour garder ta streak ! ⚡️";
 "streak.longest" = "Record de streak : %d 🔥";
+"profile.open.spotify" = "Ouvrir sur Spotify";
+"profile.delete.post" = "Supprimer le post";
+"profile.delete.confirmation.title" = "Supprimer le post ?";
+"profile.delete.confirmation.message" = "Cette action est irréversible.";
+"profile.delete.confirm" = "Supprimer";
+"common.cancel" = "Annuler";
+

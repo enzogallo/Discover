@@ -59,7 +59,7 @@ struct SharePopupView: View {
                     TextField("share.search.placeholder".localized, text: $searchQuery)
                         .font(.plusJakartaSans(size: 15))
                         .textFieldStyle(PlainTextFieldStyle())
-                        .onChange(of: searchQuery) { newValue in
+                        .onChange(of: searchQuery) { oldValue, newValue in
                             searchTask?.cancel()
                             
                             if newValue.trimmingCharacters(in: .whitespaces).isEmpty {

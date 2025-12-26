@@ -16,6 +16,10 @@ struct NewProfileView: View {
     @State private var followingCount: Int = 0
     @State private var isLoading: Bool = false
     @State private var showSettings = false
+    @State private var scrollOffset: CGFloat = 0
+    @State private var showDiscoverLogo: Bool = false
+    @State private var selectedPostToDelete: Post? = nil
+    @State private var showDeleteConfirmation: Bool = false
     
     var body: some View {
         ZStack {
@@ -23,6 +27,11 @@ struct NewProfileView: View {
                 .ignoresSafeArea()
             
             ScrollView {
+                GeometryReader { geometry in
+                    Color.clear.preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).minY)
+                }
+                .frame(height: 0)
+                
                 VStack(spacing: 0) {
                     // Header avec Discover et Settings
                     HStack {
@@ -37,6 +46,8 @@ struct NewProfileView: View {
                         }
                         .padding(.leading, 16)
                         .padding(.top, 8)
+                        .opacity(showDiscoverLogo ? 1 : 0)
+                        .animation(.easeInOut(duration: 0.2), value: showDiscoverLogo)
                         
                         Spacer()
                         
@@ -172,6 +183,22 @@ struct NewProfileView: View {
                                     .aspectRatio(1, contentMode: .fill)
                                     .cornerRadius(12)
                                     .clipped()
+                                    .contextMenu {
+                                        Button(action: {
+                                            if let url = URL(string: post.spotifyURL) {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        }) {
+                                            Label("profile.open.spotify".localized, systemImage: "music.note")
+                                        }
+                                        
+                                        Button(role: .destructive, action: {
+                                            selectedPostToDelete = post
+                                            showDeleteConfirmation = true
+                                        }) {
+                                            Label("profile.delete.post".localized, systemImage: "trash")
+                                        }
+                                    }
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -181,6 +208,23 @@ struct NewProfileView: View {
                     }
                 }
             }
+            .coordinateSpace(name: "scroll")
+            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                scrollOffset = value
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showDiscoverLogo = scrollOffset < -100
+                }
+            }
+        }
+        .alert("profile.delete.confirmation.title".localized, isPresented: $showDeleteConfirmation, presenting: selectedPostToDelete) { post in
+            Button("common.cancel".localized, role: .cancel) { }
+            Button("profile.delete.confirm".localized, role: .destructive) {
+                Task {
+                    await deletePost(post)
+                }
+            }
+        } message: { post in
+            Text("profile.delete.confirmation.message".localized)
         }
         .sheet(isPresented: $showSettings) {
             SettingsView(authService: authService, firebaseService: firebaseService, spotifyService: spotifyService)
@@ -224,4 +268,25 @@ struct NewProfileView: View {
             }
         }
     }
+    
+    private func deletePost(_ post: Post) async {
+        guard let userId = authService.currentUser?.id else { return }
+        
+        do {
+            try await firebaseService.deletePost(postId: post.id, userId: userId)
+            await MainActor.run {
+                userPosts.removeAll { $0.id == post.id }
+            }
+        } catch {
+            print("Erreur lors de la suppression du post: \(error)")
+        }
+    }
 }
+
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
