@@ -11,11 +11,11 @@ import Combine
 import AuthenticationServices
 
 class SpotifyService: NSObject, ObservableObject {
-    // Clé API Spotify - À remplacer par votre propre clé
+    // Clés API Spotify chargées depuis Config.plist
     // Pour obtenir une clé gratuite : https://developer.spotify.com/dashboard
-    private let clientId = "de995cfc5ebe4cd1beeee600b4edd2af"
-    private let clientSecret = "657818271df24e438838085c11833082"
-    private let redirectURI = "discover-app://spotify-login"
+    private let clientId: String
+    private let clientSecret: String
+    private let redirectURI: String
     
     @Published var isUserAuthenticated: Bool = false
     @Published var spotifyUserName: String?
@@ -32,8 +32,39 @@ class SpotifyService: NSObject, ObservableObject {
     private let spotifyUserNameKey = "spotify_user_name"
     
     override init() {
+        // Charger la configuration depuis Config.plist
+        let config = SpotifyService.loadConfig()
+        self.clientId = config.clientId
+        self.clientSecret = config.clientSecret
+        self.redirectURI = config.redirectURI
+        
         super.init()
         loadTokens()
+    }
+    
+    // Structure pour stocker la configuration
+    private struct Config {
+        let clientId: String
+        let clientSecret: String
+        let redirectURI: String
+    }
+    
+    // Charger la configuration depuis Config.plist
+    private static func loadConfig() -> Config {
+        guard let path = Bundle.main.path(forResource: "Config", ofType: "plist"),
+              let plist = NSDictionary(contentsOfFile: path),
+              let clientId = plist["SpotifyClientId"] as? String,
+              let clientSecret = plist["SpotifyClientSecret"] as? String,
+              let redirectURI = plist["SpotifyRedirectURI"] as? String else {
+            fatalError("⚠️ ERREUR: Config.plist introuvable ou incomplet. Veuillez copier Config.plist.example vers Config.plist et remplir vos clés API.")
+        }
+        
+        // Vérifier que les valeurs ne sont pas des placeholders
+        if clientId.contains("VOTRE_") || clientSecret.contains("VOTRE_") {
+            fatalError("⚠️ ERREUR: Veuillez remplacer les valeurs placeholder dans Config.plist par vos vraies clés API.")
+        }
+        
+        return Config(clientId: clientId, clientSecret: clientSecret, redirectURI: redirectURI)
     }
     
     private func loadTokens() {

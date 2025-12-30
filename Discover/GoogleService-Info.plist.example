@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyA_eSJKSkvClHQ-nyiWKFiBziOtkMgHRz0</string>
+	<string>VOTRE_API_KEY_FIREBASE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>925153413038</string>
+	<string>VOTRE_GCM_SENDER_ID</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.enzogallo.Discover</string>
 	<key>PROJECT_ID</key>
-	<string>discover-d632b</string>
+	<string>VOTRE_PROJECT_ID</string>
 	<key>STORAGE_BUCKET</key>
-	<string>discover-d632b.firebasestorage.app</string>
+	<string>VOTRE_STORAGE_BUCKET</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:925153413038:ios:fdafc5b95497ee3352ea3f</string>
+	<string>VOTRE_GOOGLE_APP_ID</string>
 </dict>
 </plist>
+
