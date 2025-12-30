@@ -38,12 +38,40 @@ struct FeedView: View {
                 HStack {
                     Button(action: {}) {
                         Text("feed.discover".localized)
-                            .font(.plusJakartaSansSemiBold(size: 17))
+                            .font(.plusJakartaSansBold(size: 19))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 14)
-                            .background(Color.discoverBlack)
-                            .cornerRadius(22)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 16)
+                            .background(
+                                ZStack {
+                                    Color.discoverBlack
+                                    // Gradient subtil pour plus de profondeur
+                                    LinearGradient(
+                                        colors: [
+                                            Color.white.opacity(0.15),
+                                            Color.clear
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                }
+                            )
+                            .cornerRadius(24)
+                            .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.3),
+                                                Color.white.opacity(0.1)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            )
                     }
                     .padding(.leading, 16)
                     
