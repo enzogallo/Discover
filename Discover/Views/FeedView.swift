@@ -20,6 +20,13 @@ struct FeedView: View {
     @State private var expandedPostId: String? = nil
     @State private var commentTexts: [String: String] = [:]
     @State private var hasPostedToday: Bool = false
+    @State private var selectedFeed: FeedType = .forYou
+    @State private var followingIds: [String] = []
+    
+    enum FeedType {
+        case friends
+        case forYou
+    }
     
     var body: some View {
         ZStack {
@@ -57,18 +64,62 @@ struct FeedView: View {
                 }
                 .padding(.top, 8)
                 
+                // Sélecteur d'onglets
+                HStack(spacing: 0) {
+                    // Onglet "Amis"
+                    Button(action: {
+                        withAnimation {
+                            selectedFeed = .friends
+                        }
+                    }) {
+                        VStack(spacing: 6) {
+                            Text("feed.friends".localized)
+                                .font(.plusJakartaSansSemiBold(size: 15))
+                                .foregroundColor(selectedFeed == .friends ? .themePrimaryText : .gray)
+                            
+                            Rectangle()
+                                .fill(selectedFeed == .friends ? Color.discoverBlack : Color.clear)
+                                .frame(height: 2)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    // Onglet "Pour toi"
+                    Button(action: {
+                        withAnimation {
+                            selectedFeed = .forYou
+                        }
+                    }) {
+                        VStack(spacing: 6) {
+                            Text("feed.for.you".localized)
+                                .font(.plusJakartaSansSemiBold(size: 15))
+                                .foregroundColor(selectedFeed == .forYou ? .themePrimaryText : .gray)
+                            
+                            Rectangle()
+                                .fill(selectedFeed == .forYou ? Color.discoverBlack : Color.clear)
+                                .frame(height: 2)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 6)
+                .padding(.bottom, 4)
+                
                 // Feed content
                 if isLoading && firebaseService.posts.isEmpty {
                     Spacer()
                     ProgressView("feed.loading".localized)
                     Spacer()
-                } else if firebaseService.posts.isEmpty {
+                } else if filteredPosts.isEmpty {
                     Spacer()
                     VStack(spacing: 20) {
                         Image(systemName: "music.note.list")
                             .font(.system(size: 50))
                             .foregroundColor(.gray.opacity(0.5))
-                        Text("feed.no.posts".localized)
+                        Text(selectedFeed == .friends ? "feed.no.friends.posts".localized : "feed.no.posts".localized)
                             .font(.plusJakartaSans(size: 15))
                             .foregroundColor(.gray.opacity(0.7))
                     }
@@ -76,7 +127,7 @@ struct FeedView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 16) {
-                            ForEach(firebaseService.posts) { post in
+                            ForEach(filteredPosts) { post in
                                 NewPostCard(
                                     post: post,
                                     spotifyService: spotifyService,
@@ -132,11 +183,34 @@ struct FeedView: View {
         }
     }
     
+    // Posts filtrés selon l'onglet sélectionné
+    private var filteredPosts: [Post] {
+        switch selectedFeed {
+        case .friends:
+            // Inclure les posts des utilisateurs suivis + les posts de l'utilisateur actuel
+            let currentUserId = authService.currentUser?.id ?? ""
+            return firebaseService.posts.filter { post in
+                followingIds.contains(post.userId) || post.userId == currentUserId
+            }
+        case .forYou:
+            // Tous les posts
+            return firebaseService.posts
+        }
+    }
+    
     private func loadPosts() async {
         isLoading = true
         
         do {
             try await firebaseService.fetchPosts()
+            
+            // Charger les IDs des utilisateurs suivis
+            if let userId = authService.currentUser?.id {
+                let following = try await firebaseService.getFollowingIds(userId: userId)
+                await MainActor.run {
+                    self.followingIds = following
+                }
+            }
             
             // Charger les counts et états pour tous les posts
             for post in firebaseService.posts {

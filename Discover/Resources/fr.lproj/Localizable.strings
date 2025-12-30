@@ -33,6 +33,9 @@
 "feed.post" = "Publier";
 "feed.loading" = "Chargement...";
 "feed.reveal.cta" = "Participe pour voir ce que les autres écoutent";
+"feed.friends" = "Amis";
+"feed.for.you" = "Explorer";
+"feed.no.friends.posts" = "Aucun partage de tes amis pour le moment";
 
 /* Share */
 "share.discover" = "Discover";
@@ -107,5 +110,7 @@
 "profile.delete.confirmation.title" = "Supprimer le post ?";
 "profile.delete.confirmation.message" = "Cette action est irréversible.";
 "profile.delete.confirm" = "Supprimer";
+"profile.no.followers" = "Aucun abonné pour le moment";
+"profile.no.following" = "Vous ne suivez personne pour le moment";
 "common.cancel" = "Annuler";
 

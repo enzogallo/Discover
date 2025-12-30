@@ -379,6 +379,56 @@ class FirebaseService: ObservableObject {
         return snapshot.documents.count
     }
     
+    func getFollowingIds(userId: String) async throws -> [String] {
+        let query = db.collection(followsCollection)
+            .whereField("followerId", isEqualTo: userId)
+        
+        let snapshot = try await query.getDocuments()
+        return snapshot.documents.compactMap { doc in
+            doc.data()["followingId"] as? String
+        }
+    }
+    
+    // Récupérer la liste des abonnés (followers) avec leurs informations utilisateur
+    func getFollowers(userId: String) async throws -> [User] {
+        let query = db.collection(followsCollection)
+            .whereField("followingId", isEqualTo: userId)
+        
+        let snapshot = try await query.getDocuments()
+        let followerIds = snapshot.documents.compactMap { doc -> String? in
+            doc.data()["followerId"] as? String
+        }
+        
+        var followers: [User] = []
+        for followerId in followerIds {
+            if let user = try await getUserById(userId: followerId) {
+                followers.append(user)
+            }
+        }
+        
+        return followers
+    }
+    
+    // Récupérer la liste des abonnements (following) avec leurs informations utilisateur
+    func getFollowing(userId: String) async throws -> [User] {
+        let query = db.collection(followsCollection)
+            .whereField("followerId", isEqualTo: userId)
+        
+        let snapshot = try await query.getDocuments()
+        let followingIds = snapshot.documents.compactMap { doc -> String? in
+            doc.data()["followingId"] as? String
+        }
+        
+        var following: [User] = []
+        for followingId in followingIds {
+            if let user = try await getUserById(userId: followingId) {
+                following.append(user)
+            }
+        }
+        
+        return following
+    }
+    
     // MARK: - Delete User Data
     func deleteUserData(userId: String) async throws {
         // Supprimer tous les posts de l'utilisateur

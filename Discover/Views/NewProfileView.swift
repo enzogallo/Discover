@@ -20,6 +20,8 @@ struct NewProfileView: View {
     @State private var showDiscoverLogo: Bool = false
     @State private var selectedPostToDelete: Post? = nil
     @State private var showDeleteConfirmation: Bool = false
+    @State private var showFollowersFollowing: Bool = false
+    @State private var followersFollowingTab: FollowersFollowingView.FollowTab = .followers
     
     var body: some View {
         ZStack {
@@ -128,22 +130,32 @@ struct NewProfileView: View {
                         
                         // Followers / Following
                         HStack(spacing: 60) {
-                            VStack(spacing: 4) {
-                                Text("\(followerCount)")
-                                    .font(.plusJakartaSansBold(size: 20))
-                                    .foregroundColor(.themePrimaryText)
-                                Text("profile.followers".localized)
-                                    .font(.plusJakartaSans(size: 14))
-                                    .foregroundColor(.themePrimaryText)
+                            Button(action: {
+                                followersFollowingTab = .followers
+                                showFollowersFollowing = true
+                            }) {
+                                VStack(spacing: 4) {
+                                    Text("\(followerCount)")
+                                        .font(.plusJakartaSansBold(size: 20))
+                                        .foregroundColor(.themePrimaryText)
+                                    Text("profile.followers".localized)
+                                        .font(.plusJakartaSans(size: 14))
+                                        .foregroundColor(.themePrimaryText)
+                                }
                             }
                             
-                            VStack(spacing: 4) {
-                                Text("\(followingCount)")
-                                    .font(.plusJakartaSansBold(size: 20))
-                                    .foregroundColor(.themePrimaryText)
-                                Text("profile.following".localized)
-                                    .font(.plusJakartaSans(size: 14))
-                                    .foregroundColor(.themePrimaryText)
+                            Button(action: {
+                                followersFollowingTab = .following
+                                showFollowersFollowing = true
+                            }) {
+                                VStack(spacing: 4) {
+                                    Text("\(followingCount)")
+                                        .font(.plusJakartaSansBold(size: 20))
+                                        .foregroundColor(.themePrimaryText)
+                                    Text("profile.following".localized)
+                                        .font(.plusJakartaSans(size: 14))
+                                        .foregroundColor(.themePrimaryText)
+                                }
                             }
                         }
                         .padding(.top, 20)
@@ -229,6 +241,17 @@ struct NewProfileView: View {
         .sheet(isPresented: $showSettings) {
             SettingsView(authService: authService, firebaseService: firebaseService, spotifyService: spotifyService)
         }
+        .sheet(isPresented: $showFollowersFollowing) {
+            if let userId = authService.currentUser?.id, let pseudonym = authService.currentUser?.pseudonym {
+                FollowersFollowingView(
+                    userId: userId,
+                    userPseudonym: pseudonym,
+                    initialTab: followersFollowingTab,
+                    authService: authService,
+                    firebaseService: firebaseService
+                )
+            }
+        }
         .task {
             await loadProfileData()
         }
@@ -289,4 +312,7 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
         value = nextValue()
     }
 }
+
+
+
 

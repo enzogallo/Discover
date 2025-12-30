@@ -33,6 +33,9 @@
 "feed.post" = "Post";
 "feed.loading" = "Loading...";
 "feed.reveal.cta" = "Participate to see what others are listening to";
+"feed.friends" = "Friends";
+"feed.for.you" = "Explore";
+"feed.no.friends.posts" = "No shares from your friends yet";
 
 /* Share */
 "share.discover" = "Discover";
@@ -107,5 +110,7 @@
 "profile.delete.confirmation.title" = "Delete post?";
 "profile.delete.confirmation.message" = "This action is irreversible.";
 "profile.delete.confirm" = "Delete";
+"profile.no.followers" = "No followers yet";
+"profile.no.following" = "Not following anyone yet";
 "common.cancel" = "Cancel";
 

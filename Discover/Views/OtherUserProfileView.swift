@@ -18,6 +18,8 @@ struct OtherUserProfileView: View {
     @State private var isFollowing: Bool = false
     @State private var user: User? = nil
     @State private var isLoading: Bool = false
+    @State private var showFollowersFollowing: Bool = false
+    @State private var followersFollowingTab: FollowersFollowingView.FollowTab = .followers
 
     @Environment(\.dismiss) var dismiss
     
@@ -128,22 +130,32 @@ struct OtherUserProfileView: View {
                     
                     // Followers / Following
                     HStack(spacing: 60) {
-                        VStack(spacing: 4) {
-                            Text("\(followerCount)")
-                                .font(.plusJakartaSansBold(size: 20))
-                                .foregroundColor(.themePrimaryText)
-                            Text("profile.followers".localized)
-                                .font(.plusJakartaSans(size: 14))
-                                .foregroundColor(.themePrimaryText)
+                        Button(action: {
+                            followersFollowingTab = .followers
+                            showFollowersFollowing = true
+                        }) {
+                            VStack(spacing: 4) {
+                                Text("\(followerCount)")
+                                    .font(.plusJakartaSansBold(size: 20))
+                                    .foregroundColor(.themePrimaryText)
+                                Text("profile.followers".localized)
+                                    .font(.plusJakartaSans(size: 14))
+                                    .foregroundColor(.themePrimaryText)
+                            }
                         }
                         
-                        VStack(spacing: 4) {
-                            Text("\(followingCount)")
-                                .font(.plusJakartaSansBold(size: 20))
-                                .foregroundColor(.themePrimaryText)
-                            Text("profile.following".localized)
-                                .font(.plusJakartaSans(size: 14))
-                                .foregroundColor(.themePrimaryText)
+                        Button(action: {
+                            followersFollowingTab = .following
+                            showFollowersFollowing = true
+                        }) {
+                            VStack(spacing: 4) {
+                                Text("\(followingCount)")
+                                    .font(.plusJakartaSansBold(size: 20))
+                                    .foregroundColor(.themePrimaryText)
+                                Text("profile.following".localized)
+                                    .font(.plusJakartaSans(size: 14))
+                                    .foregroundColor(.themePrimaryText)
+                            }
                         }
                     }
                     .padding(.top, 20)
@@ -194,6 +206,15 @@ struct OtherUserProfileView: View {
         }
         .task {
             await loadProfileData()
+        }
+        .sheet(isPresented: $showFollowersFollowing) {
+            FollowersFollowingView(
+                userId: userId,
+                userPseudonym: userPseudonym,
+                initialTab: followersFollowingTab,
+                authService: authService,
+                firebaseService: firebaseService
+            )
         }
     }
     
