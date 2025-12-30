@@ -96,7 +96,7 @@ struct ShareView: View {
                 // Résultats
                 if isLoading {
                     Spacer()
-                    ProgressView("share.searching".localized)
+                    LoadingSpinner(message: "share.searching".localized)
                     Spacer()
                 } else if searchResults.isEmpty && !searchQuery.isEmpty {
                     Spacer()

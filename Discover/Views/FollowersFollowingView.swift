@@ -105,7 +105,7 @@ struct FollowersFollowingView: View {
                     // Liste des utilisateurs
                     if isLoading {
                         Spacer()
-                        ProgressView("feed.loading".localized)
+                        LoadingSpinner(message: "feed.loading".localized)
                             .padding(.top, 40)
                         Spacer()
                     } else {

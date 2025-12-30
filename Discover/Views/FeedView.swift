@@ -65,53 +65,63 @@ struct FeedView: View {
                 .padding(.top, 8)
                 
                 // Sélecteur d'onglets
-                HStack(spacing: 0) {
+                HStack(spacing: 12) {
                     // Onglet "Amis"
                     Button(action: {
                         withAnimation {
                             selectedFeed = .friends
                         }
                     }) {
-                        VStack(spacing: 6) {
-                            Text("feed.friends".localized)
-                                .font(.plusJakartaSansSemiBold(size: 15))
-                                .foregroundColor(selectedFeed == .friends ? .themePrimaryText : .gray)
-                            
-                            Rectangle()
-                                .fill(selectedFeed == .friends ? Color.discoverBlack : Color.clear)
-                                .frame(height: 2)
-                        }
-                        .padding(.vertical, 8)
+                        CleanButton(
+                            text: "feed.friends".localized,
+                            backgroundColor: selectedFeed == .friends ? Color.orange.opacity(0.8) : Color.gray.opacity(0.3),
+                            textColor: selectedFeed == .friends ? .white : .themePrimaryText,
+                            borderGradient: selectedFeed == .friends ? 
+                                LinearGradient(
+                                    colors: [.white.opacity(0.4), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ) :
+                                LinearGradient(
+                                    colors: [.white.opacity(0.2), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                        )
                     }
-                    .frame(maxWidth: .infinity)
                     
-                    // Onglet "Pour toi"
+                    // Onglet "Explorer"
                     Button(action: {
                         withAnimation {
                             selectedFeed = .forYou
                         }
                     }) {
-                        VStack(spacing: 6) {
-                            Text("feed.for.you".localized)
-                                .font(.plusJakartaSansSemiBold(size: 15))
-                                .foregroundColor(selectedFeed == .forYou ? .themePrimaryText : .gray)
-                            
-                            Rectangle()
-                                .fill(selectedFeed == .forYou ? Color.discoverBlack : Color.clear)
-                                .frame(height: 2)
-                        }
-                        .padding(.vertical, 8)
+                        CleanButton(
+                            text: "feed.for.you".localized,
+                            backgroundColor: selectedFeed == .forYou ? Color.orange.opacity(0.8) : Color.gray.opacity(0.3),
+                            textColor: selectedFeed == .forYou ? .white : .themePrimaryText,
+                            borderGradient: selectedFeed == .forYou ? 
+                                LinearGradient(
+                                    colors: [.white.opacity(0.4), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ) :
+                                LinearGradient(
+                                    colors: [.white.opacity(0.2), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                        )
                     }
-                    .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 6)
+                .padding(.top, 8)
                 .padding(.bottom, 4)
                 
                 // Feed content
                 if isLoading && firebaseService.posts.isEmpty {
                     Spacer()
-                    ProgressView("feed.loading".localized)
+                    LoadingSpinner(message: "feed.loading".localized)
                     Spacer()
                 } else if filteredPosts.isEmpty {
                     Spacer()
@@ -238,6 +248,10 @@ struct FeedView: View {
                     self.hasPostedToday = postedToday
                 }
             }
+            
+            // Précharger les premières images critiques (3-5 premières)
+            let postsToPreload = firebaseService.posts.prefix(5)
+            await ImagePreloader.shared.preloadCriticalImages(from: Array(postsToPreload), count: 3)
 
         } catch {
             print("Erreur lors du chargement: \(error)")

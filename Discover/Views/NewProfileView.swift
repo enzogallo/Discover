@@ -162,7 +162,7 @@ struct NewProfileView: View {
                         
                         // Grille de posts
                         if isLoading && userPosts.isEmpty {
-                            ProgressView("feed.loading".localized)
+                            LoadingSpinner(message: "feed.loading".localized)
                                 .padding(.top, 40)
                         } else if userPosts.isEmpty {
                             VStack(spacing: 20) {
@@ -278,6 +278,10 @@ struct NewProfileView: View {
         
         do {
             let (userPostsResult, followersResult, followingResult) = try await (posts, followers, following)
+            
+            // Précharger les premières images de la grille (6 premières pour une grille 2x3)
+            let postsToPreload = userPostsResult.prefix(6)
+            await ImagePreloader.shared.preloadCriticalImages(from: Array(postsToPreload), count: 6)
             
             await MainActor.run {
                 userPosts = userPostsResult

@@ -51,7 +51,7 @@ struct CommentsView: View {
                 // Liste des commentaires
                 if isLoading && comments.isEmpty {
                     Spacer()
-                    ProgressView()
+                    LoadingSpinner(message: "feed.loading".localized)
                     Spacer()
                 } else if comments.isEmpty {
                     Spacer()
